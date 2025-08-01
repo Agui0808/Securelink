@@ -1,0 +1,159 @@
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Phishing Inspector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <div id="app" class="bg-body-tertiary min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+          <div class="card shadow-lg border-0 rounded-4 p-4">
+            <div class="card-body">
+
+              <h1 class="text-center text-primary mb-4">
+                <i class="bi bi-shield-lock-fill"></i> Phishing Inspector
+              </h1>
+              <p class="text-muted text-center">Analiza correos y enlaces sospechosos, y aprende cómo protegerte.</p>
+
+              <ul class="nav nav-tabs mb-4" id="infoTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="phishing-tab" data-bs-toggle="tab" data-bs-target="#phishing" type="button" role="tab">Detector</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="social-tab" data-bs-toggle="tab" data-bs-target="#social" type="button" role="tab">Ingeniería Social</button>
+                </li>
+              </ul>
+
+              <div class="tab-content" id="infoTabsContent">
+
+                <!-- TAB: Detector -->
+                <div class="tab-pane fade show active" id="phishing" role="tabpanel">
+                  <form @submit.prevent="analizarTodo" class="mt-4">
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Contenido del correo:</label>
+                      <textarea v-model="texto" class="form-control" rows="5" placeholder="Ej. Su cuenta ha sido bloqueada. Haga clic aquí para verificar..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Link sospechoso:</label>
+                      <input v-model="link" type="text" class="form-control" placeholder="Ej. http://bit.ly/abc123">
+                    </div>
+
+                    <button class="btn btn-primary w-100">Analizar</button>
+                  </form>
+
+                  <div v-if="resultado" class="mt-5">
+                    <div :class="['alert', esPeligroso ? 'alert-danger' : 'alert-success']">
+                      <h5 class="fw-bold">{{ resultado }}</h5>
+                      <p>Confianza en el diagnóstico: <strong>{{ confianza }}</strong></p>
+                    </div>
+
+                    <div v-if="detalles.length">
+                      <h6 class="fw-bold mb-2">🧾 Detalles del análisis:</h6>
+                      <ul class="list-group mb-3">
+                        <li v-for="item in detalles" :key="item" class="list-group-item">
+                          <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>{{ item }}
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div v-if="consejos.length">
+                      <h6 class="fw-bold mb-2">🛡️ Consejos de seguridad:</h6>
+                      <ul class="list-group">
+                        <li v-for="tip in consejos" :key="tip" class="list-group-item list-group-item-light">
+                          <i class="bi bi-shield-check me-2 text-success"></i>{{ tip }}
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="mt-4">
+                      <h6 class="fw-bold mb-2"><i class="bi bi-question-circle me-2 text-danger"></i>¿Hiciste clic en el enlace?</h6>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-outline-danger" @click="clickeado = true">Sí</button>
+                        <button class="btn btn-outline-secondary" @click="clickeado = false">No</button>
+                      </div>
+                    </div>
+
+                    <div v-if="clickeado === true" class="alert alert-warning mt-4">
+                      <h6 class="fw-bold mb-2"><i class="bi bi-shield-exclamation me-2"></i>Protocolo recomendado:</h6>
+                      <ul class="mb-0">
+                        <li>Cambia inmediatamente tus contraseñas, especialmente del correo y cuentas bancarias.</li>
+                        <li>Activa la verificación en dos pasos (2FA) en tus cuentas importantes.</li>
+                        <li>Escanea tu dispositivo con un antivirus actualizado.</li>
+                        <li>Evita ingresar datos personales en sitios que no estés 100% seguro.</li>
+                        <li>Contacta al soporte del servicio afectado (banco, correo, red social, etc.).</li>
+                        <li>Revisa tus movimientos bancarios o de servicios por si hay actividad sospechosa.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TAB: Ingeniería Social -->
+                <div class="tab-pane fade" id="social" role="tabpanel">
+                  <h4 class="text-primary mt-4"><i class="bi bi-people-fill me-2"></i>¿Qué es la Ingeniería Social?</h4>
+                  <p>
+                    La <strong>ingeniería social</strong> es una disciplina que, en el ámbito de la ciberseguridad, se refiere a un conjunto de técnicas de manipulación psicológica utilizadas por ciberdelincuentes para engañar a individuos y así obtener información confidencial, acceso a sistemas, o inducirlos a realizar acciones que les beneficien. A diferencia de los ataques técnicos que explotan vulnerabilidades en software o hardware, la ingeniería social se enfoca en el "eslabón más débil" de la cadena de seguridad: el ser humano.
+                  </p>
+
+                  <h5 class="mt-3"><i class="bi bi-gear-wide-connected me-2"></i>¿Cómo funciona?</h5>
+                  <p>
+                    La ingeniería social explota las características inherentes de la psicología humana, como la confianza, la curiosidad, el miedo, la urgencia o el deseo de ayudar. Los atacantes construyen escenarios creíbles y persuasivos para manipular a sus víctimas. Generalmente, un ataque de ingeniería social sigue una serie de pasos:
+
+
+                    
+                  <li> Recopilación de información: El atacante investiga a su objetivo. Esto puede incluir buscar información en redes sociales (LinkedIn, Facebook, etc.), sitios web de la empresa, noticias o incluso recortes de periódicos. El objetivo es conocer el funcionamiento interno de la organización, los nombres de empleados clave, sus roles, intereses y relaciones.</li>
+
+<li>Creación de confianza: Una vez recopilada la información, el atacante establece contacto con la víctima, a menudo haciéndose pasar por una persona o entidad de confianza (un colega, un proveedor, un técnico de soporte, una autoridad, etc.). El objetivo es generar una relación o situación que inspire credibilidad.</li>
+
+<li>Explotación: Cuando la confianza se ha establecido o la situación de urgencia/miedo es efectiva, el atacante manipula a la víctima para que divulgue la información deseada (contraseñas, datos bancarios, información personal), o realice una acción específica (hacer clic en un enlace malicioso, descargar un archivo, realizar una transferencia de dinero).</li>
+
+<li>Escape: Una vez logrado el objetivo, el atacante se desvincula, a menudo sin dejar rastro, o al menos dificultando su rastreo.</li>
+                  </p>
+
+                  <h5 class="mt-3"><i class="bi bi-bullseye me-2"></i>Objetivos principales</h5>
+                  <ul>
+                    <li>Obtener Información Confidencial: Este es, quizás, el objetivo más común y fundamental. Los atacantes buscan datos sensibles que pueden ser usados para otros ataques o para beneficio propio. .</li>
+                    <li>Acceso no Autorizado a Sistemas o Redes: Una vez que obtienen credenciales o explotan la confianza, los ingenieros sociales buscan ganar acceso a sistemas informáticos o redes. </li>
+                    <li>Inducir a la Víctima a Realizar Acciones Específicas: Los atacantes manipulan a las personas para que realicen acciones que normalmente no harían.</li>
+                    <li>Dañar la Reputación o Causar Disrupción: Aunque menos común como objetivo primario, la ingeniería social también puede ser usada para fines de sabotaje o para dañar la imagen de una persona o empresa.</li>
+                  </ul>
+
+                  <h5 class="mt-3"><i class="bi bi-layers-half me-2"></i>Técnicas comunes</h5>
+                  <ul>
+                    <li>Phishing y spear phishing.</li>
+                    <li>Pretexting: inventar una historia para justificar el acceso.</li>
+                    <li>Baiting: dejar dispositivos infectados para que sean usados.</li>
+                    <li>Tailgating: ingresar físicamente a lugares restringidos.</li>
+                  </ul>
+
+                  <h5 class="mt-3"><i class="bi bi-shield-lock me-2"></i>¿Cómo evitarlo?</h5>
+                  <ul>
+                    <li>No hacer clic en enlaces o descargar archivos de fuentes desconocidas</li>
+                    <li>No compartir datos personales por canales no verificados.</li>
+                    <li>Verificar siempre la fuente</li>
+                    <li>Utilizar contraseñas fuertes y autenticación de dos factores (2FA).</li>
+                  </ul>
+                </div>
+
+              </div> <!-- /.tab-content -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.15/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
