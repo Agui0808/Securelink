@@ -1,0 +1,29 @@
+body {
+  background: #f8f9fa;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.card {
+  border-radius: 1rem;
+}
+
+textarea, input {
+  resize: none;
+}
+
+.list-group-item-light {
+  background-color: #f4f7fa;
+}
+
+.nav-tabs .nav-link.active {
+  font-weight: bold;
+}
+
+.tab-pane ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+
+.tab-pane h5, .tab-pane h6 {
+  color: #0d6efd;
+}
