@@ -45,7 +45,7 @@ createApp({
       }
       if (score >= 60) {
         this.resultado = "⚠️ Posible correo o enlace peligroso";
-        this.confianza = "Baja";
+        this.confianza = "Alta";
         this.consejos.push("No hagas clic en el enlace.");
         this.consejos.push("Reporta este mensaje a tu proveedor.");
       } else if (score >= 30) {
