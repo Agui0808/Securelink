@@ -1,563 +1,1142 @@
-<!DOCTYPE html>
-<html lang="es" data-bs-theme="light">
+  </div        // Patrones de typosquatting comunes
+        const typosquattingPatterns = {
+            'google': ['g00gle', 'g0ogle', 'googIe', 'gooogle', 'goggle', 'gogle'],
+            'facebook': ['faceb00k', 'faceb0ok', 'facebok', 'facebk', 'facebbk'],
+            'paypal': ['paypaI', 'paypaII', 'paypaL', 'paypaLl', 'paypaI.com'],
+            'amazon': ['amaz0n', 'amazom', 'amazone', 'ammazon'],
+            'microsoft': ['microsft', 'microsooft', 'micr0soft', 'micrsoft'],
+            'apple': ['аррlе', 'apрle', 'аpple', 'appIe'],
+            'netflix': ['netfIix', 'netflx', 'netflixx', 'netfl1x'],
+            'whatsapp': ['whatsaap', 'whatsap', 'watsapp', 'whatsapр']
+        };<!DOCTYPE html>
+<html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Phishing Inspector — Potenciado</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECURELINK - Detector de Enlaces Maliciosos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <!-- Bootstrap CSS + Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
 
-  <!-- Vue + Chart.js -->
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
 
-  <style>
-    body { -webkit-font-smoothing:antialiased; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .break-all { word-break: break-all; }
-    .small-muted { font-size:.9rem; opacity:.9; }
-    .pill { font-size:.75rem; padding:.18rem .6rem; border-radius:999px; border:1px solid rgba(0,0,0,.08); }
-    .link-action { min-width: 40px; }
-  </style>
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+            overflow: hidden;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .section {
+            padding: 3rem;
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .url-checker {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .url-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .check-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .result {
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-top: 1rem;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .result.safe {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .result.danger {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+        }
+
+        .result.warning {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+        }
+
+        .education-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .education-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .education-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .education-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .education-card h3 {
+            color: #4a5568;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .education-card p {
+            color: #666;
+            line-height: 1.7;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        footer {
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .section {
+                padding: 2rem 1rem;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: loading 2s ease-in-out;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            50% { width: 60%; }
+            100% { width: 100%; }
+        }
+    </style>
 </head>
 <body>
-<div id="app" class="container py-4">
-  <!-- HEADER -->
-  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-    <div class="d-flex align-items-center gap-3">
-      <i class="bi bi-shield-lock-fill fs-2 text-primary"></i>
-      <div>
-        <h1 class="h4 mb-0">Phishing Inspector</h1>
-        <div class="text-muted small-muted">Analizador heurístico avanzado de enlaces y correos.</div>
-      </div>
-    </div>
-
-    <div class="d-flex align-items-center gap-2">
-      <div class="form-check form-switch me-2">
-        <input class="form-check-input" type="checkbox" id="darkModeSwitch" v-model="darkMode" @change="toggleDarkMode">
-        <label class="form-check-label" for="darkModeSwitch">🌙 Modo oscuro</label>
-      </div>
-      <button class="btn btn-outline-secondary btn-sm" @click="limpiarFormulario"><i class="bi bi-eraser"></i></button>
-    </div>
-  </div>
-
-  <!-- TABS -->
-  <ul class="nav nav-tabs mb-3" role="tablist">
-    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#detector" type="button">Detector</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#info" type="button">Ingeniería Social</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#history" type="button">Historial</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#stats" type="button">Estadísticas</button></li>
-  </ul>
-
-  <div class="tab-content">
-    <!-- DETECTOR -->
-    <div class="tab-pane fade show active" id="detector" role="tabpanel">
-      <div class="row g-3">
-        <div class="col-12">
-          <label class="form-label fw-semibold">Contenido del correo/mensaje:</label>
-          <textarea v-model="texto" class="form-control" rows="5" placeholder="Pega aquí el texto sospechoso..."></textarea>
-        </div>
-
-        <div class="col-12 col-lg-8">
-          <label class="form-label fw-semibold">Enlace específico (opcional):</label>
-          <input v-model="link" class="form-control" placeholder="Ej. https://soporte-apple.com/actualizar o dominio" />
-        </div>
-
-        <div class="col-12 col-lg-4 d-grid">
-          <label class="form-label opacity-0">.</label>
-          <button class="btn btn-primary" @click="analizarTodo"><i class="bi bi-search me-2"></i>Analizar</button>
-        </div>
-
-        <!-- Enlaces detectados -->
-        <div class="col-12" v-if="enlacesDetectados.length">
-          <h6 class="fw-semibold"><i class="bi bi-link-45deg me-1"></i>Enlaces detectados</h6>
-          <div class="list-group">
-            <div class="list-group-item d-flex align-items-center justify-content-between" v-for="u in enlacesDetectados" :key="u">
-              <div class="mono break-all">{{ u }}</div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-primary" @click="analizarURL(u)"><i class="bi bi-activity"></i></button>
-                <a class="btn btn-sm btn-outline-secondary" :href="añadirHttp(u)" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i></a>
-              </div>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">🔐 SECURELINK</div>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#detector">Detector</a></li>
+                        <li><a href="#educacion">Educación</a></li>
+                        <li><a href="#estadisticas">Estadísticas</a></li>
+                    </ul>
+                    <button class="mobile-menu-btn">☰</button>
+                </nav>
             </div>
-          </div>
         </div>
+    </header>
 
-        <!-- RESULTADO -->
-        <div class="col-12" v-if="resultado">
-          <div :class="['alert', esPeligroso ? 'alert-danger' : (nivel==='Medio' ? 'alert-warning' : 'alert-success')]">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <h5 class="fw-bold mb-1">{{ resultado }}</h5>
-                <div class="small text-muted">Confianza: <strong>{{ confianza }}</strong> — ({{ confianzaPorcentaje }}%)</div>
-              </div>
-              <span class="pill">{{ etiquetaVector }}</span>
+    <main>
+        <section id="inicio" class="hero">
+            <div class="container">
+                <h1>SECURELINK</h1>
+                <p>Tu escudo digital contra enlaces maliciosos y ataques de phishing. Protege tu información personal con nuestra tecnología avanzada de detección.</p>
+                
+
             </div>
-          </div>
+        </section>
 
-          <div v-if="detalles.length">
-            <h6 class="fw-semibold">🧾 Detalles del análisis</h6>
-            <ul class="list-group mb-3">
-              <li class="list-group-item" v-for="(d, i) in detalles" :key="i"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>{{ d }}</li>
-            </ul>
-          </div>
+        <div class="container">
+            <div class="main-card">
+                <section id="detector" class="section">
+                    <h2>🔍 Detector de Enlaces</h2>
+                    <div class="url-checker">
+                        <div class="input-group">
+                            <input type="url" class="url-input" id="urlInput" placeholder="Ingresa la URL que deseas verificar (ej: https://ejemplo.com)">
+                            <button class="check-btn" onclick="checkURL()">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="m9 12 2 2 4-4"></path>
+                                    <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+                                    <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+                                    <path d="M3 12h3l6-6 6 6h3"></path>
+                                </svg>
+                                Verificar
+                            </button>
+                        </div>
+                        
+                        <div class="progress-bar" id="progressBar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        
+                        <div class="result" id="result"></div>
+                        
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+                            <p><strong>💡 Consejo:</strong> Siempre verifica los enlaces antes de hacer clic, especialmente si provienen de fuentes desconocidas o mensajes sospechosos.</p>
+                        </div>
+                    </div>
+                </section>
 
-          <div v-if="consejos.length">
-            <h6 class="fw-semibold">🛡️ Consejos</h6>
-            <ul class="list-group">
-              <li v-for="(c,i) in consejos" :key="i" class="list-group-item list-group-item-light"><i class="bi bi-shield-check me-2 text-success"></i>{{ c }}</li>
-            </ul>
-          </div>
-
-          <div class="mt-3">
-            <h6 class="fw-semibold">¿Hiciste clic en el enlace?</h6>
-            <div class="d-flex gap-2">
-              <button class="btn btn-outline-danger" @click="clickeado=true">Sí</button>
-              <button class="btn btn-outline-secondary" @click="clickeado=false">No</button>
+                <section id="educacion" class="section">
+                    <h2>📚 Centro Educativo</h2>
+                    <div class="education-grid">
+                        <div class="education-card">
+                            <h3>🎣 ¿Qué es el Phishing?</h3>
+                            <p>El phishing es una técnica fraudulenta que utiliza mensajes o sitios web falsos para engañar a los usuarios y obtener información confidencial como contraseñas, números de tarjetas de crédito o datos personales. Los atacantes suelen hacerse pasar por entidades legítimas como bancos, redes sociales o servicios online.</p>
+                        </div>
+                        
+                        <div class="education-card">
+                            <h3>🔤 Suplantación de Identidad</h3>
+                            <p><strong>¡El tipo más peligroso!</strong> Estos enlaces se parecen mucho a sitios reales pero tienen pequeños cambios:<br>
+                            • <code>paypaI.com</code> (I mayúscula en lugar de l)<br>
+                            • <code>g00gle.com</code> (ceros en lugar de o)<br>
+                            • <code>аррlе.com</code> (letras del alfabeto cirílico)<br>
+                            • <code>login.paypal.com.falso.net</code> (subdominio malicioso)</p>
+                        </div>
+                        
+                        <div class="education-card">
+                            <h3>🔗 Enlaces Acortados Peligrosos</h3>
+                            <p>Los servicios como bit.ly, tinyurl.com pueden ocultar el destino real. Ejemplos sospechosos:<br>
+                            • <code>bit.ly/login-urgente</code><br>
+                            • <code>tinyurl.com/verificar-ahora</code><br>
+                            <strong>Nunca hagas clic sin conocer el destino real.</strong></p>
+                        </div>
+                        
+                        <div class="education-card">
+                            <h3>📝 Errores Ortográficos Intencionales</h3>
+                            <p>Los ciberdelincuentes usan errores "accidentales" para confundir:<br>
+                            • <code>faceb0ok.com</code> (cero en lugar de o)<br>
+                            • <code>micr0soft.com</code> (cero en lugar de o)<br>
+                            • <code>amazom.com</code> (m en lugar de n)<br>
+                            <strong>Siempre revisa la URL letra por letra.</strong></p>
+                        </div>
+                        
+                        <div class="education-card">
+                            <h3>🧠 Ingeniería Social</h3>
+                            <p>La manipulación psicológica que utilizan los ciberdelincuentes para inducir a las personas a realizar acciones que comprometen su seguridad. Emplean tácticas como crear urgencia, generar miedo o establecer falsa confianza para lograr que las víctimas entreguen información sensible.</p>
+                        </div>
+                        
+                        <div class="education-card">
+                            <h3>🚨 Señales de Alerta</h3>
+                            <p>Aprende a identificar mensajes sospechosos: URLs acortadas o extrañas, errores de ortografía, solicitudes urgentes de información personal, remitentes desconocidos, ofertas demasiado buenas para ser verdad, y amenazas o presión para actuar inmediatamente.</p>
+                        </div>
+                        
+                        <div class="education-card">
+                            <h3>🛡️ Cómo Protegerte</h3>
+                            <p>Medidas de prevención esenciales: verifica siempre la URL antes de hacer clic, no proporciones información personal por email, usa autenticación de dos factores, mantén tus sistemas actualizados, y cuando tengas dudas, consulta directamente con la organización supuestamente involucrada.</p>
+                        </div>
+                        
+                        <div class="education-card">
+                            <h3>📱 Phishing Móvil</h3>
+                            <p>Los ataques de phishing también ocurren en dispositivos móviles a través de SMS (smishing), aplicaciones maliciosas, y QR codes fraudulentos. Siempre descarga apps desde tiendas oficiales y verifica la autenticidad de los códigos QR antes de escanearlos.</p>
+                        </div>
+                        
+                        <div class="education-card">
+                            <h3>⚡ Qué Hacer si Eres Víctima</h3>
+                            <p>Si sospechas que has sido víctima: cambia inmediatamente tus contraseñas, contacta a tu banco y proveedores de servicios, reporta el incidente a las autoridades competentes, monitorea tus cuentas regularmente, y considera congelar tu crédito temporalmente.</p>
+                        </div>
+                    </div>
+                </section>
             </div>
-          </div>
-
-          <div v-if="clickeado===true" class="alert alert-warning mt-3">
-            <h6 class="fw-semibold"><i class="bi bi-shield-exclamation me-2"></i>Protocolo recomendado</h6>
-            <ul class="mb-0">
-              <li>Cambia contraseñas críticas y activa 2FA.</li>
-              <li>Escanea tu equipo y revisa movimientos bancarios.</li>
-              <li>No introduzcas datos en sitios dudosos; contacta soporte oficial.</li>
-            </ul>
-          </div>
         </div>
-      </div>
-    </div>
+    </main>
 
-    <!-- INGENIERÍA SOCIAL -->
-    <div class="tab-pane fade" id="info" role="tabpanel">
-      <h5 class="fw-semibold"><i class="bi bi-people-fill me-2"></i>¿Qué es la Ingeniería Social?</h5>
-      <p>Conjunto de técnicas para manipular psicológicamente y obtener información/acciones. Señales: urgencia, miedo, recompensa, enlaces acortados, dominios parecidos.</p>
-
-      <h6 class="mt-3 fw-semibold"><i class="bi bi-shield-lock me-2"></i>Prevención</h6>
-      <ul>
-        <li>Verifica dominio y certificado antes de iniciar sesión.</li>
-        <li>No abras enlaces acortados sin previsualizar.</li>
-        <li>Contraseñas fuertes, 2FA y actualizaciones al día.</li>
-      </ul>
-    </div>
-
-    <!-- HISTORIAL -->
-    <div class="tab-pane fade" id="history" role="tabpanel">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="fw-semibold"><i class="bi bi-clock-history me-2"></i>Historial</h5>
-        <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-outline-success" @click="exportarCSV">📤 CSV</button>
-          <button class="btn btn-sm btn-outline-info" @click="exportarJSON">📤 JSON</button>
-          <button class="btn btn-sm btn-outline-danger" @click="borrarHistorial"><i class="bi bi-trash"></i> Borrar historial</button>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SECURELINK - Juan David Aguilar Arcos | Colegio Comfaboy</p>
+            <p>Técnico en Sistemas Teleinformáticos - Tunja, Boyacá</p>
         </div>
-      </div>
+    </footer>
 
-      <div class="list-group">
-        <div class="list-group-item" v-for="item in historial" :key="item.id">
-          <div class="d-flex justify-content-between align-items-start">
-            <div class="me-3 w-100">
-              <div class="fw-semibold">{{ item.fecha }} — <span :class="item.resultado.toLowerCase().includes('peligroso') ? 'text-danger' : (item.resultado.toLowerCase().includes('sospechoso') ? 'text-warning' : 'text-success')">{{ item.resultado }}</span></div>
-              <div class="small text-muted">Confianza: {{ item.confianza }}</div>
-              <div v-if="item.link" class="mono break-all small mt-1">URL: {{ item.link }}</div>
-              <div v-if="item.texto && item.texto.length>0" class="small text-truncate mt-1">{{ item.texto }}</div>
-            </div>
-            <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-primary" @click="seleccionarHistorial(item)">Cargar</button>
-              <button class="btn btn-sm btn-outline-secondary" @click="eliminarDeHistorial(item.id)"><i class="bi bi-x-circle"></i></button>
-            </div>
-          </div>
-        </div>
-        <div v-if="!historial.length" class="p-3 text-muted">No hay análisis almacenados.</div>
-      </div>
-    </div>
+    <script>
+        // Base de datos de URLs maliciosas conocidas (simulada)
+        const maliciousPatterns = [
+            'bit.ly/fake',
+            'tinyurl.com/scam',
+            'secure-bank-login.net',
+            'paypal-security-check.com',
+            'amazon-winner.org',
+            'facebook-security.net',
+            'google-verification.org',
+            'microsoft-security.net',
+            'apple-id-locked.com',
+            'netflix-payment.org',
+            'whatsapp-verification.net',
+            'banking-secure.org'
+        ];
 
-    <!-- ESTADÍSTICAS -->
-    <div class="tab-pane fade" id="stats" role="tabpanel">
-      <h5 class="fw-semibold"><i class="bi bi-bar-chart-line me-2"></i>Estadísticas</h5>
-      <canvas id="statsChart" class="mt-3"></canvas>
-    </div>
-  </div>
-</div>
+        // URLs seguras conocidas
+        const legitimateDomains = [
+            'google.com',
+            'facebook.com',
+            'amazon.com',
+            'paypal.com',
+            'microsoft.com',
+            'apple.com',
+            'netflix.com',
+            'youtube.com',
+            'twitter.com',
+            'instagram.com',
+            'linkedin.com',
+            'github.com',
+            'bancolombia.com',
+            'davivienda.com',
+            'bancodebogota.com',
+            'bbva.com',
+            'mercadolibre.com.co',
+            'rappi.com',
+            'uber.com',
+            'whatsapp.com'
+        ];
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        // Servicios de acortamiento de URLs conocidos
+        const urlShorteners = [
+            'bit.ly',
+            'tinyurl.com',
+            'short.link',
+            'ow.ly',
+            't.co',
+            'goo.gl',
+            'is.gd',
+            'buff.ly',
+            'cutt.ly',
+            's.id',
+            'rebrand.ly',
+            'clickmeter.com'
+        ];
 
-<script>
-const { createApp } = Vue;
+        // Mapeo de caracteres similares para detectar homógrafos
+        const homoglyphMap = {
+            'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c', 'у': 'y', 'х': 'x',
+            'А': 'A', 'В': 'B', 'Е': 'E', 'К': 'K', 'М': 'M', 'Н': 'H', 'О': 'O', 
+            'Р': 'P', 'С': 'C', 'Т': 'T', 'У': 'Y', 'Х': 'X',
+            'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
+            '0': 'o', '1': 'l', '3': 'e', '5': 's', '6': 'g', '8': 'b'
+        };
 
-createApp({
-  data() {
-    return {
-      texto: "",
-      link: "",
-      resultado: "",
-      confianza: "",
-      confianzaPorcentaje: 100,
-      detalles: [],
-      consejos: [],
-      clickeado: null,
-      historial: JSON.parse(localStorage.getItem("historialPhishing")) || [],
-      darkMode: false,
-      chart: null,
-      nivel: "Bajo",
-      etiquetaVector: "Heurístico"
-    };
-  },
-  computed: {
-    esPeligroso() {
-      return this.resultado.toLowerCase().includes("peligroso");
-    },
-    enlacesDetectados() {
-      return this.extraerLinks(this.texto);
-    }
-  },
-  mounted() {
-    this.renderChart();
-    // aplicar tema si ya estaba en localStorage (opcional)
-    if (localStorage.getItem("ph_inspector_theme")==="dark") {
-      this.darkMode = true;
-      this.toggleDarkMode();
-    }
-  },
-  methods: {
-    // UI
-    limpiarFormulario() {
-      this.texto = "";
-      this.link = "";
-      this.resultado = "";
-      this.confianza = "";
-      this.confianzaPorcentaje = 100;
-      this.detalles = [];
-      this.consejos = [];
-      this.clickeado = null;
-      this.nivel = "Bajo";
-      this.etiquetaVector = "Heurístico";
-    },
-    seleccionarHistorial(item) {
-      this.texto = item.texto || "";
-      this.link = item.link || "";
-      this.resultado = item.resultado;
-      this.confianza = item.confianza;
-      this.confianzaPorcentaje = parseInt((item.confianza.match(/\d+/)||[100])[0]);
-      this.clickeado = null;
-      this.nivel = this.resultado.toLowerCase().includes("peligroso") ? "Alto" : (this.resultado.toLowerCase().includes("sospechoso") ? "Medio" : "Bajo");
-      this.etiquetaVector = "Histórico";
-      this.detalles = ["Consulta previa cargada."];
-    },
-    eliminarDeHistorial(id) {
-      this.historial = this.historial.filter(x => x.id !== id);
-      localStorage.setItem("historialPhishing", JSON.stringify(this.historial));
-      this.renderChart();
-    },
-    borrarHistorial() {
-      if (!confirm("¿Deseas borrar todo el historial?")) return;
-      this.historial = [];
-      localStorage.setItem("historialPhishing", JSON.stringify(this.historial));
-      this.renderChart();
-    },
-    exportarCSV() {
-      const filas = [["Fecha","Resultado","Confianza","Link","Texto"]];
-      this.historial.forEach(it => filas.push([it.fecha, it.resultado, it.confianza, it.link||"", (it.texto||"").replace(/\s+/g," ").trim()]));
-      const csv = filas.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
-      this.descargarArchivo(csv, "historial.csv", "text/csv");
-    },
-    exportarJSON() {
-      const json = JSON.stringify(this.historial, null, 2);
-      this.descargarArchivo(json, "historial.json", "application/json");
-    },
-    descargarArchivo(contenido, nombre, tipo) {
-      const blob = new Blob([contenido], { type: tipo });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = nombre;
-      link.click();
-      URL.revokeObjectURL(link.href);
-    },
-    toggleDarkMode() {
-      document.documentElement.setAttribute("data-bs-theme", this.darkMode ? "dark" : "light");
-      localStorage.setItem("ph_inspector_theme", this.darkMode ? "dark" : "light");
-    },
+        // Patrones de phishing avanzado con IA y contexto
+        const advancedPhishingPatterns = [
+            // Phishing con IA - URLs que parecen legítimas pero con dominios falsos
+            'googledocs.login.phishing-site.com',
+            'docs.google.com.verify-access.net',
+            'drive.google.com.security-check.org',
+            'outlook.office.com.login-required.info',
+            'teams.microsoft.com.meeting-access.biz',
+            
+            // Quishing - Dominios comunes en códigos QR maliciosos
+            'banco-seguridad.com',
+            'verificar-identidad.net',
+            'qr-verification.org',
+            'scan-to-verify.com',
+            'qr-security-check.net',
+            
+            // Smishing - Servicios de mensajería falsos
+            'dhl.com.paquete-entrega-gratis.net',
+            'fedex-tracking.delivery-update.com',
+            'ups.com.envio-pendiente.org',
+            'correos.com.paquete-retenido.net',
+            'amazon.com.pedido-pendiente.info',
+            
+            // Redirecciones y evasión
+            'virales-del-dia.com',
+            'click-redirect.net',
+            'short-redirect.org',
+            'premio-ganado.xyz',
+            'winner-selected.top',
+            
+            // Malvertising
+            'click.anuncios-seguros.com',
+            'claim.tarjeta-regalo-amazon.com',
+            'premio-instantaneo.gift',
+            'ganador-sorteo.winner'
+        ];
 
-    // FLUJO PRINCIPAL
-    analizarTodo() {
-      const linksDetectados = this.enlacesDetectados;
-      const linkAAnalizar = (this.link || linksDetectados[0] || "").trim();
-      this.resultado = "";
-      this.detalles = [];
-      this.consejos = [];
-      this.clickeado = null;
-      this.etiquetaVector = "Heurístico";
+        // Patrones de contexto sospechoso (palabras clave que indican urgencia/engaño)
+        const suspiciousContextWords = [
+            'urgente', 'inmediato', 'bloquead', 'suspend', 'verificar', 'confirmar',
+            'actualizar', 'caducar', 'vencer', 'ganador', 'premio', 'gratis',
+            'limited', 'expir', 'security', 'alert', 'warning', 'action-required',
+            'cuenta-bloqueada', 'login-required', 'verify-now', 'claim-now',
+            'delivery-failed', 'paquete-retenido', 'envio-pendiente'
+        ];
 
-      // Reglas sobre texto: presión/urgencia/premios
-      let score = 0;
-      const patronesTexto = /verificar|urgente|bloquead[oa]|suspendid[oa]|inmediatamente|expirad[oa]|contraseña|cobro no autorizado|confirmar cuenta|premio|ganador|bono|reembolso|factura|soporte|verificación|mfa|otp|código|bloqueo|fraude|actividad inusual|paquete|aduana|dhl|fedex|impuesto|deuda|sorteo|gratis|promocion|oferta|regalo/i;
-      if (patronesTexto.test(this.texto)) {
-        score += 30;
-        this.detalles.push("Uso de lenguaje con presión/urgencia o señuelos (premios, facturas, soporte).");
-      }
+        // Servicios legítimos comúnmente imitados
+        const legitimateServices = {
+            'google': ['docs.google.com', 'drive.google.com', 'gmail.com', 'accounts.google.com'],
+            'microsoft': ['outlook.com', 'office.com', 'teams.microsoft.com', 'login.microsoftonline.com'],
+            'amazon': ['amazon.com', 'amazon.co.uk', 'amazon.de', 'amazon.es'],
+            'paypal': ['paypal.com', 'paypal.es'],
+            'dhl': ['dhl.com', 'dhl.es', 'dhl.co.uk'],
+            'fedex': ['fedex.com', 'fedex.es'],
+            'ups': ['ups.com', 'ups.es'],
+            'banks': ['bancolombia.com', 'davivienda.com', 'bancodebogota.com', 'bbva.com']
+        };
 
-      // Si no hay enlace, calificamos sólo por contenido
-      if (!linkAAnalizar) {
-        this.calificar(score, null, "contenido");
-        this.persistirHistorial("", "");
-        return;
-      }
+        // Extensiones de dominio sospechosas para diferentes tipos de ataques
+        const suspiciousTLDs = {
+            'high_risk': ['.tk', '.ml', '.ga', '.cf', '.top', '.click', '.download', '.stream', '.loan', '.win', '.bid'],
+            'medium_risk': ['.info', '.biz', '.name', '.mobi', '.asia', '.tel'],
+            'phishing_common': ['.net', '.org', '.info', '.biz'] // Cuando se usan para imitar .com
+        };
 
-      // Analizar la URL con la rutina completa
-      const { riesgo, razones, vector, confianzaPct, resumen, host } = this.analizarURL(linkAAnalizar);
-      score += riesgo;
-      this.detalles.push(...razones);
-      this.etiquetaVector = vector;
-
-      // Reglas adicionales explícitas solicitadas (sorteos / soportes falsos / emergentes)
-      const lower = (linkAAnalizar || "").toLowerCase();
-      // patrones de ejemplo que quieres captar:
-      const patronesEstafas = [
-        /sorteo|sorteos|sorteos-gratis|sorteosgratis|sorteos\-gratis\.net/,
-        /promo|promocion|promociones|premio-ahora/,
-        /soporte\-apple\.com|soporte-apple|soporte-apple\.net|support-apple|apple-support\-login/,
-        /soporte-|soporte_/,
-        /popup|emergente|popup\-alert|promo\-alert|ads-|adservice|adserver/
-      ];
-      for (const p of patronesEstafas) {
-        if (p.test(lower)) {
-          score += 45;
-          this.detalles.push("🔶 Patrón de estafa detectado: oferta/sorteo/soporte falso o anuncio emergente.");
-          break;
+        function checkURL() {
+            const urlInput = document.getElementById('urlInput');
+            const result = document.getElementById('result');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = progressBar.querySelector('.progress-fill');
+            
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showResult('warning', '⚠️ Por favor, ingresa una URL para verificar.');
+                return;
+            }
+            
+            if (!isValidURL(url)) {
+                showResult('warning', '⚠️ Por favor, ingresa una URL válida (debe comenzar con http:// o https://).');
+                return;
+            }
+            
+            // Mostrar barra de progreso
+            progressBar.style.display = 'block';
+            progressFill.style.animation = 'none';
+            progressFill.offsetHeight; // Trigger reflow
+            progressFill.style.animation = 'loading 2s ease-in-out';
+            
+            // Simular análisis con delay
+            setTimeout(() => {
+                progressBar.style.display = 'none';
+                analyzeURL(url);
+            }, 2000);
         }
-      }
-
-      // Calificación final
-      this.calificar(score, confianzaPct, resumen);
-
-      // Generar consejos
-      this.generarConsejos(this.detalles);
-
-      // Guardado en historial (host útil para referencia)
-      this.persistirHistorial(linkAAnalizar, host);
-    },
-
-    // Análisis por URL (puedes llamar directamente)
-    analizarURL(entrada) {
-      const original = entrada || "";
-      const urlStr = /^([a-z]+:)?\/\//i.test(entrada) ? entrada : `http://${entrada}`;
-      let host = "";
-      let proto = "";
-      let path = "";
-      let query = "";
-      let port = "";
-      let full = urlStr;
-
-      let razones = [];
-      let score = 0;
-      let vector = "Heurístico";
-
-      try {
-        const u = new URL(urlStr);
-        host = (u.hostname || "").toLowerCase();
-        proto = (u.protocol || "").toLowerCase();
-        path = (u.pathname || "");
-        query = (u.search || "");
-        port = (u.port || "");
-        full = u.href;
-      } catch {
-        const m = (entrada.match(/^([a-z0-9\-\.]+\.[a-z]{2,})/i) || [,""])[1];
-        host = (m || "").toLowerCase();
-      }
-
-      // 1) Protocolo/esquema
-      if (/^http:/.test(proto)) { score += 25; razones.push("Enlace usa HTTP sin cifrado."); }
-      if (/^(javascript|data|file|blob|ftp|ws|wss):/i.test(proto)) { score += 50; razones.push(`Esquema no estándar o riesgoso: ${proto}`); vector = "URL Scheme"; }
-
-      // 2) Punycode/Unicode/homoglifos
-      if (/(^|\.)xn--/i.test(host)) { score += 50; razones.push("Dominio IDN (punycode): posible homógrafo."); }
-      if (/[^\x00-\x7F]/.test(host)) { score += 40; razones.push("Dominio con caracteres Unicode no ASCII."); }
-      if (this.mezclaScripts(host)) { score += 35; razones.push("Mezcla de alfabetos (latín/cirílico) en el dominio."); }
-
-      // 3) TLDs y patrones con abuso histórico
-      if (/\.(ru|cn|tk|ml|ga|cf|gq|xyz|top|click|rest|cam|monster|quest|zip|mov)(\/|$)/i.test(host)) { score += 20; razones.push("TLD con historial de abuso en phishing."); }
-
-      // 4) IPs, puertos, estructura
-      if (/^(\d{1,3}\.){3}\d{1,3}$/.test(host)) { score += 30; razones.push("Host es una IP en lugar de dominio."); }
-      if (port && !/^(80|443)$/.test(port)) { score += 10; razones.push(`Puerto inusual: ${port}`); }
-      const labels = host.split(".");
-      if (labels.length >= 5) { score += 15; razones.push("Estructura profunda (muchos subdominios)."); }
-      if (/([a-z0-9]+-){2,}/i.test(host)) { score += 15; razones.push("Demasiados guiones en el dominio."); }
-      if (/(.)\1{2,}/i.test(host)) { score += 10; razones.push("Repetición inusual de caracteres."); }
-      if (/[a-z]*[0-9]{2,}[a-z]*/i.test(host)) { score += 10; razones.push("Mezcla sospechosa letras/números."); }
-      if (/@/.test(full)) { score += 35; razones.push("URL contiene userinfo (@) — posible obfuscación."); vector = "Obfuscation"; }
-
-      // 5) Acortadores
-      if (/(^|\.)(bit\.ly|tinyurl\.com|t\.co|is\.gd|goo\.gl|ow\.ly|cutt\.ly|rebrand\.ly|buff\.ly|shorturl\.at)(\/|$)/i.test(host)) {
-        score += 40; razones.push("Enlace acortado detectado."); vector = "Redirect/Shortener";
-      }
-
-      // 6) Leet/homoglifos y marcas
-      const { normalizedHost, leetReplacements } = this.normalizeLeetHost(host);
-      if (leetReplacements > 0) { score += Math.min(leetReplacements*12, 60); razones.push(`Sustituciones leet/homógrafo (${leetReplacements}).`); }
-      const brands = ["google","facebook","instagram","whatsapp","youtube","twitter","x","microsoft","outlook","office","live","windows","apple","icloud","amazon","aws","netflix","paypal","binance","steam","adobe","spotify","tiktok","snapchat","yahoo","github","gitlab","dropbox","bankofamerica","chase","wellsfargo","santander","bbva","bancolombia","davivienda","nequi"];
-      const parts = host.split(".").flatMap(l => l.split("-")).filter(Boolean);
-      outer: for (const part of parts) {
-        const { normalized } = this.normalizeLeet(part.toLowerCase());
-        for (const b of brands) {
-          const d = this.levenshtein(normalized, b);
-          if (d === 0 && normalized === b && part !== b) { score += 45; razones.push(`Suplantación de marca: "${part}" ≈ "${b}".`); break outer; }
-          else if (d <= 2 && normalized.length >= 5) { score += 35; razones.push(`Dominio muy similar a marca "${b}" (${part} ≈ ${b}).`); break outer; }
+        
+        function isValidURL(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                // Try with http prefix if not present
+                try {
+                    new URL('http://' + string);
+                    return true;
+                } catch (_) {
+                    return false;
+                }
+            }
         }
-      }
-
-      // 7) Path / query indicators
-      const pathLower = (path||"").toLowerCase();
-      const queryLower = (query||"").toLowerCase();
-      const palabrasPath = /(login|signin|sign-in|verify|verification|update|secure|confirm|password|invoice|billing|payment|bank|wallet|gift|bonus|award|support|unlock|appeal|mfa|2fa|reset|recovery|parcel|dhl|fedex|ups|customs|tax|pay|refund)/i;
-      if (palabrasPath.test(pathLower)) { score += 25; razones.push("Ruta contiene palabras frecuentemente usadas para robo de credenciales/pagos."); }
-
-      const extensionesPeligrosas = /\.(exe|msi|scr|bat|cmd|ps1|vbs|js|jar|apk|ipa|dmg|pkg|iso|7z|zip|rar|gz|bz2|xz)(\?|$)/i;
-      if (extensionesPeligrosas.test(pathLower)) { score += 40; razones.push("Archivo ejecutable/comprimido detectado en la ruta."); vector = "Malicious File"; }
-
-      const parametrosSensibles = /(password|passwd|pass|pwd|otp|code|token|apikey|api_key|secret|ssn|dni|cedula|card|cc|cvv|pin|iban|swift|security_answer|recovery)/i;
-      if (parametrosSensibles.test(queryLower)) { score += 30; razones.push("Parámetros que indican captura de datos sensibles."); }
-
-      // 8) Ofuscaciones
-      if (/%00|%0d%0a|%2e%2e%2f|%2f%2e%2e/i.test(full)) { score += 25; razones.push("Secuencias de escape/Traversal detectadas."); }
-      if (decodeURIComponentSafe(full).match(/[^\x20-\x7E]/)) { score += 10; razones.push("Codificación/Unicode inusual tras decodificar URL."); }
-
-      // 9) Longitud / segmentos
-      if (full.length > 200) { score += 15; razones.push(`URL muy larga (${full.length} caracteres).`); }
-      if ((full.match(/\//g)||[]).length > 10) { score += 10; razones.push("Demasiados segmentos en la ruta."); }
-
-      // 10) Resultado
-      const maxScore = 180;
-      const riesgo = Math.min(score, maxScore);
-      const confianzaPct = Math.max(0, 100 - Math.round((riesgo / maxScore) * 100));
-      const resumen = "url";
-
-      return { riesgo, razones, vector, confianzaPct, resumen, host };
-    },
-
-    // CALIFICACIÓN FINAL
-    calificar(score, confianzaPct, resumen) {
-      const maxScore = 180;
-      const riesgo = Math.min(score, maxScore);
-      this.confianzaPorcentaje = confianzaPct || Math.max(0, 100 - Math.round((riesgo / maxScore) * 100));
-
-      if (riesgo >= 80) {
-        this.resultado = "⚠️ Posible correo o enlace peligroso";
-        this.confianza = `Baja (${this.confianzaPorcentaje}%)`;
-        this.nivel = "Alto";
-      } else if (riesgo >= 45) {
-        this.resultado = "⚠️ Podría ser sospechoso";
-        this.confianza = `Media (${this.confianzaPorcentaje}%)`;
-        this.nivel = "Medio";
-      } else {
-        this.resultado = "✅ No parece ser phishing";
-        this.confianza = `Alta (${this.confianzaPorcentaje}%)`;
-        this.nivel = "Bajo";
-      }
-    },
-
-    generarConsejos(razones) {
-      const R = razones.join(" ").toLowerCase();
-      this.consejos = [];
-      if (R.includes("http sin cifrado") || R.includes("http:")) this.consejos.push("Evita ingresar credenciales en sitios que no usen HTTPS.");
-      if (R.includes("acortado")) this.consejos.push("Previsualiza la URL acortada antes de abrirla.");
-      if (R.includes("ejecutable") || R.includes("comprimido")) this.consejos.push("No descargues ni ejecutes archivos de fuentes desconocidas.");
-      if (R.includes("marca")) this.consejos.push("Accede escribiendo manualmente la dirección oficial del servicio.");
-      if (R.includes("sorteo") || R.includes("premio") || R.includes("regalo")) this.consejos.push("Desconfía de sorteos/promociones no solicitadas.");
-      if (!this.consejos.length) this.consejos.push("Verifica dominio, evita ingresar credenciales y reporta el mensaje si procede.");
-    },
-
-    persistirHistorial(linkAAnalizar, host) {
-      const item = {
-        id: cryptoRandomId(),
-        texto: this.texto || "",
-        link: linkAAnalizar || "",
-        dominio: host || "",
-        resultado: this.resultado,
-        confianza: this.confianza,
-        fecha: new Date().toLocaleString()
-      };
-      this.historial.unshift(item);
-      if (this.historial.length > 200) this.historial.pop();
-      localStorage.setItem("historialPhishing", JSON.stringify(this.historial));
-      this.renderChart();
-    },
-
-    // UTILIDADES
-    extraerLinks(texto) {
-      const links = new Set();
-      const r = /((?:https?|ftp|ws|wss|blob|data|file|javascript):\/\/[^\s)'"<>]+)|\b((?:www\.)?[a-z0-9\-]+(?:\.[a-z0-9\-]+)+(?:\/[^\s]*)?)/ig;
-      (texto.match(r) || []).forEach(x => links.add(String(x).trim()));
-      return Array.from(links);
-    },
-    añadirHttp(u) { return /^([a-z]+:)?\/\//i.test(u) ? u : `http://${u}`; },
-    mezclaScripts(s) { const latin = /[A-Za-z]/.test(s); const cyr = /[\u0400-\u04FF]/.test(s); return latin && cyr; },
-
-    normalizeLeetHost(host) {
-      const parts = host.split(".");
-      let total = 0;
-      const normParts = parts.map(p => {
-        const { normalized, replacements } = this.applyLeetRules(p.toLowerCase());
-        total += replacements;
-        return normalized;
-      });
-      return { normalizedHost: normParts.join("."), leetReplacements: total };
-    },
-    normalizeLeet(s) { const { normalized, replacements } = this.applyLeetRules(s); return { normalized, replacements, changed: replacements>0 }; },
-    applyLeetRules(s) {
-      let replacements = 0;
-      const rules = [[/0/g,"o"],[/1/g,"l"],[/\|/g,"l"],[/!/g,"i"],[/3/g,"e"],[/4/g,"a"],[/@/g,"a"],[/5/g,"s"],[/\$/g,"s"],[/7/g,"t"],[/9/g,"g"],[/2/g,"z"],[/\+/g,"t"],[/vv/g,"w"],[/rn/g,"m"],[/cl/g,"d"]];
-      for (const [pat,rep] of rules) { const m = s.match(pat); if (m) replacements += m.length; s = s.replace(pat, rep); }
-      return { normalized: s, replacements };
-    },
-
-    levenshtein(a,b) {
-      if (a===b) return 0;
-      const n=a.length, m=b.length;
-      if (!n) return m; if (!m) return n;
-      const dp = Array.from({length:n+1},()=>new Array(m+1).fill(0));
-      for (let i=0;i<=n;i++) dp[i][0]=i;
-      for (let j=0;j<=m;j++) dp[0][j]=j;
-      for (let i=1;i<=n;i++) for (let j=1;j<=m;j++){ const cost = a[i-1]===b[j-1]?0:1; dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+cost); }
-      return dp[n][m];
-    },
-
-    // CHART
-    renderChart() {
-      const counts = { Alto:0, Medio:0, Bajo:0 };
-      this.historial.forEach(item => {
-        const r = (item.resultado||"").toLowerCase();
-        if (r.includes("peligroso") || r.includes("alto")) counts.Alto++;
-        else if (r.includes("sospechoso") || r.includes("medio")) counts.Medio++;
-        else counts.Bajo++;
-      });
-      const ctx = document.getElementById("statsChart");
-      if (!ctx) return;
-      if (this.chart) this.chart.destroy();
-      this.chart = new Chart(ctx, {
-        type: "bar",
-        data: { labels:["Seguro ✅","Medio ⚠️","Alto ⚠️"], datasets:[{ label:"Análisis", data:[counts.Bajo, counts.Medio, counts.Alto], backgroundColor:["#198754","#ffc107","#dc3545"] }] },
-        options: { responsive:true, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, precision:0 } } }
-      });
-    }
-  }
-}).mount("#app");
-
-// Helpers globales
-function cryptoRandomId() {
-  if (window.crypto?.getRandomValues) {
-    const a = new Uint32Array(2);
-    window.crypto.getRandomValues(a);
-    return Array.from(a).map(n => n.toString(16)).join("");
-  }
-  return Math.random().toString(16).slice(2)+Date.now().toString(16);
-}
-function decodeURIComponentSafe(s) {
-  try { return decodeURIComponent(s); } catch { return s; }
-}
-</script>
+        
+        function analyzeURL(url) {
+            // Normalizar URL
+            let normalizedUrl = url.toLowerCase();
+            if (!normalizedUrl.startsWith('http')) {
+                normalizedUrl = 'http://' + normalizedUrl;
+            }
+            
+            let urlObj;
+            try {
+                urlObj = new URL(normalizedUrl);
+            } catch (e) {
+                showResult('warning', '⚠️ URL no válida. Verifica el formato e intenta nuevamente.');
+                return;
+            }
+            
+            const domain = urlObj.hostname.replace('www.', '');
+            const fullUrl = urlObj.href;
+            
+            // 1. Verificar patrones maliciosos conocidos y avanzados
+            const isMalicious = maliciousPatterns.some(pattern => 
+                fullUrl.includes(pattern) || domain.includes(pattern)
+            ) || advancedPhishingPatterns.some(pattern => 
+                fullUrl.includes(pattern) || domain.includes(pattern)
+            );
+            
+            if (isMalicious) {
+                const threatType = detectThreatType(domain, fullUrl);
+                showResult('danger', 
+                    `🚨 <strong>AMENAZA ${threatType.type.toUpperCase()} DETECTADA</strong><br>
+                    ${threatType.description}<br>
+                    <small>⚠️ NO accedas a este enlace bajo ninguna circunstancia</small>`
+                );
+                return;
+            }
+            
+            // 2. Verificar URLs acortadas
+            const isShortened = urlShorteners.some(shortener => domain.includes(shortener));
+            
+            if (isShortened) {
+                showResult('warning', 
+                    `⚠️ <strong>ENLACE ACORTADO DETECTADO</strong><br>
+                    Este enlace usa un servicio de acortamiento de URLs (${domain}).<br>
+                    <small>🔍 No puedes ver el destino real hasta hacer clic. Procede con extrema precaución.</small>`
+                );
+                return;
+            }
+            
+            // 3. Verificar si es un dominio legítimo conocido
+            const isLegitimate = legitimateDomains.some(legit => domain === legit || domain.endsWith('.' + legit));
+            
+            if (isLegitimate) {
+                showResult('safe', 
+                    `✅ <strong>SITIO LEGÍTIMO VERIFICADO</strong><br>
+                    Esta URL pertenece a un dominio oficial reconocido.<br>
+                    <small>✓ Dominio verificado: ${domain}</small>`
+                );
+                return;
+            }
+            
+            // 4. Análisis avanzado de phishing y amenazas emergentes
+            const advancedThreatAnalysis = detectAdvancedThreats(domain, fullUrl);
+            
+            if (advancedThreatAnalysis.isThreat) {
+                showResult('danger', 
+                    `🚨 <strong>${advancedThreatAnalysis.type.toUpperCase()} DETECTADO</strong><br>
+                    ${advancedThreatAnalysis.description}<br>
+                    <small>🛡️ ${advancedThreatAnalysis.recommendation}</small>`
+                );
+                return;
+            }
+            
+            // 5. Análisis heurístico general
+            const suspiciousIndicators = checkSuspiciousPatterns(url, domain);
+            
+            if (suspiciousIndicators.length > 2) {
+                showResult('warning', 
+                    `⚠️ <strong>MÚLTIPLES INDICADORES SOSPECHOSOS</strong><br>
+                    Esta URL presenta varias características preocupantes:<br>
+                    <small>🔍 ${suspiciousIndicators.join(', ')}</small><br>
+                    <em>Recomendamos no acceder a este sitio.</em>`
+                );
+            } else if (suspiciousIndicators.length > 0) {
+                showResult('warning', 
+                    `⚠️ <strong>PRECAUCIÓN RECOMENDADA</strong><br>
+                    Se detectaron algunas características sospechosas:<br>
+                    <small>⚡ ${suspiciousIndicators.join(', ')}</small><br>
+                    <em>Verifica la autenticidad antes de proceder.</em>`
+                );
+            } else {
+                showResult('safe', 
+                    `✅ <strong>NO SE DETECTARON AMENAZAS OBVIAS</strong><br>
+                    La URL no presenta patrones maliciosos evidentes.<br>
+                    <small>📊 Dominio analizado: ${domain}</small><br>
+                    <em>Aun así, mantén precaución con sitios desconocidos.</em>`
+                );
+            }
+        }
+        
+        function detectThreatType(domain, fullUrl) {
+            // Detectar tipo específico de amenaza
+            if (domain.includes('googledocs.login') || domain.includes('docs.google.com.verify')) {
+                return {
+                    type: 'PHISHING IA',
+                    description: 'Phishing sofisticado que imita servicios de Google con IA'
+                };
+            }
+            
+            if (domain.includes('banco-seguridad') || domain.includes('qr-verification')) {
+                return {
+                    type: 'QUISHING',
+                    description: 'Probable enlace malicioso distribuido via código QR'
+                };
+            }
+            
+            if (domain.includes('paquete-entrega') || domain.includes('envio-pendiente')) {
+                return {
+                    type: 'SMISHING',
+                    description: 'Estafa de mensajería (SMS/WhatsApp) simulando empresas de envío'
+                };
+            }
+            
+            if (domain.includes('virales-del-dia') || domain.includes('premio-ganado')) {
+                return {
+                    type: 'REDIRECCIÓN MALICIOSA',
+                    description: 'Sitio que redirige a páginas de estafa'
+                };
+            }
+            
+            return {
+                type: 'MALICIOSO',
+                description: 'Esta URL está identificada como amenaza en nuestra base de datos'
+            };
+        }
+        
+        function detectAdvancedThreats(domain, fullUrl) {
+            const analysis = {
+                isThreat: false,
+                type: '',
+                description: '',
+                recommendation: ''
+            };
+            
+            // 1. Detectar phishing con IA (dominios que imitan servicios legítimos)
+            for (const [service, legitimateDomains] of Object.entries(legitimateServices)) {
+                const servicePatterns = legitimateDomains.map(d => d.split('.')[0]).filter(Boolean);
+                
+                servicePatterns.forEach(pattern => {
+                    // Buscar patrones como "docs.google.com.verify-access.net"
+                    const suspiciousPattern = new RegExp(`${pattern}\\.(google|microsoft|amazon|paypal)\\.(com|es)\\.[a-z-]+\\.(com|net|org|info)`, 'i');
+                    if (suspiciousPattern.test(domain)) {
+                        analysis.isThreat = true;
+                        analysis.type = 'PHISHING CON IA';
+                        analysis.description = `Imita ${service} usando subdominios falsos para parecer legítimo`;
+                        analysis.recommendation = 'Este tipo de phishing es muy sofisticado. Siempre verifica la URL real del servicio oficial.';
+                        return analysis;
+                    }
+                });
+            }
+            
+            // 2. Detectar contexto sospechoso en la URL
+            const contextScore = suspiciousContextWords.reduce((score, word) => {
+                if (fullUrl.toLowerCase().includes(word)) score += 1;
+                return score;
+            }, 0);
+            
+            if (contextScore >= 2) {
+                analysis.isThreat = true;
+                analysis.type = 'CONTEXTO SOSPECHOSO';
+                analysis.description = `URL contiene múltiples palabras asociadas con urgencia y estafas`;
+                analysis.recommendation = 'Las URLs legítimas no suelen usar términos de urgencia excesiva.';
+                return analysis;
+            }
+            
+            // 3. Detectar redirecciones potenciales (sitios intermedios)
+            const redirectionPatterns = ['click', 'redirect', 'go', 'link', 'forward', 'jump'];
+            if (redirectionPatterns.some(pattern => domain.includes(pattern))) {
+                analysis.isThreat = true;
+                analysis.type = 'REDIRECCIÓN SOSPECHOSA';
+                analysis.description = 'Posible sitio intermediario que redirige a contenido malicioso';
+                analysis.recommendation = 'Los sitios de redirección pueden ocultar el destino real. Evita hacer clic.';
+                return analysis;
+            }
+            
+            // 4. Detectar malvertising (publicidad maliciosa)
+            const adPatterns = ['click.', 'ad.', 'ads.', 'anuncio', 'banner', 'popup', 'claim.', 'winner'];
+            if (adPatterns.some(pattern => domain.includes(pattern))) {
+                if (suspiciousContextWords.some(word => fullUrl.includes(word))) {
+                    analysis.isThreat = true;
+                    analysis.type = 'MALVERTISING';
+                    analysis.description = 'Publicidad maliciosa que podría llevar a sitios de estafa';
+                    analysis.recommendation = 'Desconfía de anuncios que prometen premios o ofertas demasiado buenas.';
+                    return analysis;
+                }
+            }
+            
+            // 5. Análisis de phishing tradicional mejorado
+            const traditionalPhishing = detectPhishingPatterns(domain, fullUrl);
+            if (traditionalPhishing.isPhishing) {
+                analysis.isThreat = true;
+                analysis.type = 'PHISHING TRADICIONAL';
+                analysis.description = traditionalPhishing.reasons.join('. ');
+                analysis.recommendation = 'Técnicas clásicas de phishing detectadas. Verifica siempre la autenticidad.';
+                return analysis;
+            }
+            
+            return analysis;
+        }
+        function detectPhishingPatterns(domain, fullUrl) {
+            const analysis = {
+                isPhishing: false,
+                reasons: []
+            };
+            
+            // Detectar homógrafos (caracteres similares)
+            const cleanDomain = normalizeHomoglyphs(domain);
+            if (cleanDomain !== domain) {
+                // Verificar si el dominio "limpio" coincide con un sitio legítimo
+                const matchesLegitimate = legitimateDomains.some(legit => 
+                    cleanDomain === legit || cleanDomain.includes(legit)
+                );
+                if (matchesLegitimate) {
+                    analysis.isPhishing = true;
+                    analysis.reasons.push('Caracteres sospechosos que imitan letras normales');
+                }
+            }
+            
+            // Detectar typosquatting
+            for (const [brand, typos] of Object.entries(typosquattingPatterns)) {
+                if (typos.some(typo => domain.includes(typo))) {
+                    analysis.isPhishing = true;
+                    analysis.reasons.push(`Imitación de ${brand} con error ortográfico intencional`);
+                    break;
+                }
+            }
+            
+            // Detectar subdominios maliciosos (ej: paypal.com.sitiomalicioso.com)
+            legitimateDomains.forEach(legit => {
+                const pattern = new RegExp(`${legit}\\.\\w+\\.(com|net|org|info|biz)`, 'i');
+                if (pattern.test(domain) && !domain.endsWith(legit)) {
+                    analysis.isPhishing = true;
+                    analysis.reasons.push(`Usa "${legit}" como subdominio para engañar`);
+                }
+            });
+            
+            // Detectar dominios que contienen marcas pero no son oficiales
+            legitimateDomains.forEach(legit => {
+                const brand = legit.split('.')[0];
+                if (domain.includes(brand) && !domain.endsWith(legit) && domain !== legit) {
+                    // Verificar patrones sospechosos como brand-security, brand-login, etc.
+                    const suspiciousPatterns = [
+                        `${brand}-security`,
+                        `${brand}-login`,
+                        `${brand}-verify`,
+                        `${brand}-update`,
+                        `${brand}-support`,
+                        `secure-${brand}`,
+                        `login-${brand}`,
+                        `verify-${brand}`
+                    ];
+                    
+                    if (suspiciousPatterns.some(pattern => domain.includes(pattern))) {
+                        analysis.isPhishing = true;
+                        analysis.reasons.push(`Imita a ${brand} con términos como "security" o "login"`);
+                    }
+                }
+            });
+            
+            return analysis;
+        }
+        
+        function normalizeHomoglyphs(text) {
+            let normalized = text;
+            for (const [homoglyph, normal] of Object.entries(homoglyphMap)) {
+                normalized = normalized.replace(new RegExp(homoglyph, 'g'), normal);
+            }
+            return normalized;
+        }
+        
+        function checkSuspiciousPatterns(url, domain) {
+            const indicators = [];
+            
+            // Verificar longitud excesiva del dominio
+            if (domain.length > 30) {
+                indicators.push('dominio excesivamente largo');
+            }
+            
+            // Verificar múltiples subdominios
+            const subdomains = domain.split('.');
+            if (subdomains.length > 4) {
+                indicators.push('estructura de subdominios compleja');
+            }
+            
+            // Verificar números en lugares sospechosos
+            if (/\d/.test(domain.replace(/\.com|\.org|\.net|\.gov|\.co/, ''))) {
+                indicators.push('números inusuales en el dominio');
+            }
+            
+            // Verificar guiones múltiples (común en phishing)
+            if ((domain.match(/-/g) || []).length > 2) {
+                indicators.push('múltiples guiones sospechosos');
+            }
+            
+            // Verificar TLD de alto riesgo
+            const highRiskTLD = suspiciousTLDs.high_risk.some(tld => domain.endsWith(tld));
+            if (highRiskTLD) {
+                indicators.push('extensión de dominio de muy alto riesgo');
+            }
+            
+            // Verificar longitud excesiva del dominio
+            if (domain.length > 35) {
+                indicators.push('dominio excesivamente largo');
+            }
+            
+            // Verificar estructura de subdominios compleja
+            const subdomains = domain.split('.');
+            if (subdomains.length > 4) {
+                indicators.push('estructura de subdominios sospechosamente compleja');
+            }
+            
+            // Verificar números en lugares inusuales
+            if (/\d/.test(domain.replace(/\.com|\.org|\.net|\.gov|\.co|\.es/, ''))) {
+                indicators.push('números inusuales en el dominio principal');
+            }
+            
+            // Verificar guiones múltiples (común en phishing)
+            if ((domain.match(/-/g) || []).length > 3) {
+                indicators.push('uso excesivo de guiones');
+            }
+            
+            // Verificar combinaciones sospechosas en la URL completa
+            const suspiciousCombinations = [
+                ['secure', 'login'],
+                ['verify', 'account'],
+                ['update', 'payment'],
+                ['confirm', 'identity'],
+                ['urgent', 'action'],
+                ['suspended', 'account']
+            ];
+            
+            suspiciousCombinations.forEach(([word1, word2]) => {
+                if (url.includes(word1) && url.includes(word2)) {
+                    indicators.push(`combinación sospechosa: "${word1}" + "${word2}"`);
+                }
+            });
+            
+            // Verificar patrones de URL sospechosos específicos
+            if (url.includes('docs.google.com') && !domain.includes('google.com')) {
+                indicators.push('imita Google Docs pero no es de Google');
+            }
+            
+            // Verificar puertos no estándar
+            try {
+                const urlObj = new URL(url);
+                if (urlObj.port && !['80', '443', '8080', ''].includes(urlObj.port)) {
+                    indicators.push(`puerto no estándar: ${urlObj.port}`);
+                }
+            } catch (e) {
+                // URL ya fue validada anteriormente
+            }
+            
+            // Verificar caracteres Unicode sospechosos
+            if (/[\u0080-\uFFFF]/.test(domain)) {
+                indicators.push('caracteres Unicode no latinos (posibles homógrafos)');
+            }
+            
+            // Verificar uso de IP en lugar de dominio
+            if (/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/.test(domain)) {
+                indicators.push('usa dirección IP en lugar de nombre de dominio');
+            }
+            
+            // Verificar palabras clave de urgencia en la URL
+            const urgencyWords = ['urgent', 'immediate', 'expir', 'suspend', 'block', 'limit'];
+            urgencyWords.forEach(word => {
+                if (url.toLowerCase().includes(word)) {
+                    indicators.push(`término de urgencia: "${word}"`);
+                }
+            });
+            
+            return indicators;
+        }
+        
+        function showResult(type, message) {
+            const result = document.getElementById('result');
+            result.className = `result ${type}`;
+            result.innerHTML = message;
+            result.style.display = 'block';
+            
+            // Scroll suave hacia el resultado
+            result.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+            });
+        }
+        
+        // Navegación suave
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Enter key para verificar URL
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkURL();
+            }
+        });
+        
+        // Efecto de escritura automática para la demo
+        function typeURL(text, callback) {
+            const input = document.getElementById('urlInput');
+            let i = 0;
+            input.value = '';
+            
+            const typeInterval = setInterval(() => {
+                if (i < text.length) {
+                    input.value += text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typeInterval);
+                    if (callback) callback();
+                }
+            }, 100);
+        }
+        
+        // Demo automática después de cargar la página
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                // Ejemplos rotativos de diferentes tipos de amenazas avanzadas
+                const advancedDemoUrls = [
+                    'https://docs.google.com.verify-access.net/login',  // Phishing con IA
+                    'https://www.paypaI.com/login',                     // Phishing tradicional
+                    'https://banco-seguridad.com/verificar-cuenta',     // Quishing
+                    'https://dhl.com.paquete-entrega-gratis.net/track', // Smishing
+                    'https://virales-del-dia.com/video/1',              // Redirección maliciosa
+                    'https://claim.tarjeta-regalo-amazon.com/winner',   // Malvertising
+                    'https://www.аррlе.com/support',                    // Homógrafos cirílicos
+                    'https://bit.ly/urgent-security-check',             // URL acortada sospechosa
+                    'https://netflix-security.org/suspend-alert'        // Imitación con urgencia
+                ];
+                
+                const randomUrl = advancedDemoUrls[Math.floor(Math.random() * advancedDemoUrls.length)];
+                typeURL(randomUrl, () => {
+                    setTimeout(checkURL, 1500);
+                });
+            }, 4500);
+        });
+    </script>
 </body>
 </html>
 
