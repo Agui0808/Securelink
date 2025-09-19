@@ -1,14 +1,4 @@
-  </div        // Patrones de typosquatting comunes
-        const typosquattingPatterns = {
-            'google': ['g00gle', 'g0ogle', 'googIe', 'gooogle', 'goggle', 'gogle'],
-            'facebook': ['faceb00k', 'faceb0ok', 'facebok', 'facebk', 'facebbk'],
-            'paypal': ['paypaI', 'paypaII', 'paypaL', 'paypaLl', 'paypaI.com'],
-            'amazon': ['amaz0n', 'amazom', 'amazone', 'ammazon'],
-            'microsoft': ['microsft', 'microsooft', 'micr0soft', 'micrsoft'],
-            'apple': ['аррlе', 'apрle', 'аpple', 'appIe'],
-            'netflix': ['netfIix', 'netflx', 'netflixx', 'netfl1x'],
-            'whatsapp': ['whatsaap', 'whatsap', 'watsapp', 'whatsapр']
-        };<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -398,11 +388,8 @@
         <section id="inicio" class="hero">
             <div class="container">
                 <h1>SECURELINK</h1>
-                <p>Tu escudo digital contra enlaces maliciosos y ataques de phishing. Protege tu información personal con nuestra tecnología avanzada de detección.</p>
                 
-
-            </div>
-        </section>
+               
 
         <div class="container">
             <div class="main-card">
@@ -443,34 +430,8 @@
                         </div>
                         
                         <div class="education-card">
-                            <h3>🔤 Suplantación de Identidad</h3>
-                            <p><strong>¡El tipo más peligroso!</strong> Estos enlaces se parecen mucho a sitios reales pero tienen pequeños cambios:<br>
-                            • <code>paypaI.com</code> (I mayúscula en lugar de l)<br>
-                            • <code>g00gle.com</code> (ceros en lugar de o)<br>
-                            • <code>аррlе.com</code> (letras del alfabeto cirílico)<br>
-                            • <code>login.paypal.com.falso.net</code> (subdominio malicioso)</p>
-                        </div>
-                        
-                        <div class="education-card">
-                            <h3>🔗 Enlaces Acortados Peligrosos</h3>
-                            <p>Los servicios como bit.ly, tinyurl.com pueden ocultar el destino real. Ejemplos sospechosos:<br>
-                            • <code>bit.ly/login-urgente</code><br>
-                            • <code>tinyurl.com/verificar-ahora</code><br>
-                            <strong>Nunca hagas clic sin conocer el destino real.</strong></p>
-                        </div>
-                        
-                        <div class="education-card">
-                            <h3>📝 Errores Ortográficos Intencionales</h3>
-                            <p>Los ciberdelincuentes usan errores "accidentales" para confundir:<br>
-                            • <code>faceb0ok.com</code> (cero en lugar de o)<br>
-                            • <code>micr0soft.com</code> (cero en lugar de o)<br>
-                            • <code>amazom.com</code> (m en lugar de n)<br>
-                            <strong>Siempre revisa la URL letra por letra.</strong></p>
-                        </div>
-                        
-                        <div class="education-card">
                             <h3>🧠 Ingeniería Social</h3>
-                            <p>La manipulación psicológica que utilizan los ciberdelincuentes para inducir a las personas a realizar acciones que comprometen su seguridad. Emplean tácticas como crear urgencia, generar miedo o establecer falsa confianza para lograr que las víctimas entreguen información sensible.</p>
+                            <p>La ingeniería social es la manipulación psicológica que utilizan los ciberdelincuentes para inducir a las personas a realizar acciones que comprometen su seguridad. Emplean tácticas como crear urgencia, generar miedo o establecer falsa confianza para lograr que las víctimas entreguen información sensible.</p>
                         </div>
                         
                         <div class="education-card">
@@ -523,7 +484,7 @@
         ];
 
         // URLs seguras conocidas
-        const legitimateDomains = [
+        const safeUrls = [
             'google.com',
             'facebook.com',
             'amazon.com',
@@ -535,106 +496,8 @@
             'twitter.com',
             'instagram.com',
             'linkedin.com',
-            'github.com',
-            'bancolombia.com',
-            'davivienda.com',
-            'bancodebogota.com',
-            'bbva.com',
-            'mercadolibre.com.co',
-            'rappi.com',
-            'uber.com',
-            'whatsapp.com'
+            'github.com'
         ];
-
-        // Servicios de acortamiento de URLs conocidos
-        const urlShorteners = [
-            'bit.ly',
-            'tinyurl.com',
-            'short.link',
-            'ow.ly',
-            't.co',
-            'goo.gl',
-            'is.gd',
-            'buff.ly',
-            'cutt.ly',
-            's.id',
-            'rebrand.ly',
-            'clickmeter.com'
-        ];
-
-        // Mapeo de caracteres similares para detectar homógrafos
-        const homoglyphMap = {
-            'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c', 'у': 'y', 'х': 'x',
-            'А': 'A', 'В': 'B', 'Е': 'E', 'К': 'K', 'М': 'M', 'Н': 'H', 'О': 'O', 
-            'Р': 'P', 'С': 'C', 'Т': 'T', 'У': 'Y', 'Х': 'X',
-            'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
-            '0': 'o', '1': 'l', '3': 'e', '5': 's', '6': 'g', '8': 'b'
-        };
-
-        // Patrones de phishing avanzado con IA y contexto
-        const advancedPhishingPatterns = [
-            // Phishing con IA - URLs que parecen legítimas pero con dominios falsos
-            'googledocs.login.phishing-site.com',
-            'docs.google.com.verify-access.net',
-            'drive.google.com.security-check.org',
-            'outlook.office.com.login-required.info',
-            'teams.microsoft.com.meeting-access.biz',
-            
-            // Quishing - Dominios comunes en códigos QR maliciosos
-            'banco-seguridad.com',
-            'verificar-identidad.net',
-            'qr-verification.org',
-            'scan-to-verify.com',
-            'qr-security-check.net',
-            
-            // Smishing - Servicios de mensajería falsos
-            'dhl.com.paquete-entrega-gratis.net',
-            'fedex-tracking.delivery-update.com',
-            'ups.com.envio-pendiente.org',
-            'correos.com.paquete-retenido.net',
-            'amazon.com.pedido-pendiente.info',
-            
-            // Redirecciones y evasión
-            'virales-del-dia.com',
-            'click-redirect.net',
-            'short-redirect.org',
-            'premio-ganado.xyz',
-            'winner-selected.top',
-            
-            // Malvertising
-            'click.anuncios-seguros.com',
-            'claim.tarjeta-regalo-amazon.com',
-            'premio-instantaneo.gift',
-            'ganador-sorteo.winner'
-        ];
-
-        // Patrones de contexto sospechoso (palabras clave que indican urgencia/engaño)
-        const suspiciousContextWords = [
-            'urgente', 'inmediato', 'bloquead', 'suspend', 'verificar', 'confirmar',
-            'actualizar', 'caducar', 'vencer', 'ganador', 'premio', 'gratis',
-            'limited', 'expir', 'security', 'alert', 'warning', 'action-required',
-            'cuenta-bloqueada', 'login-required', 'verify-now', 'claim-now',
-            'delivery-failed', 'paquete-retenido', 'envio-pendiente'
-        ];
-
-        // Servicios legítimos comúnmente imitados
-        const legitimateServices = {
-            'google': ['docs.google.com', 'drive.google.com', 'gmail.com', 'accounts.google.com'],
-            'microsoft': ['outlook.com', 'office.com', 'teams.microsoft.com', 'login.microsoftonline.com'],
-            'amazon': ['amazon.com', 'amazon.co.uk', 'amazon.de', 'amazon.es'],
-            'paypal': ['paypal.com', 'paypal.es'],
-            'dhl': ['dhl.com', 'dhl.es', 'dhl.co.uk'],
-            'fedex': ['fedex.com', 'fedex.es'],
-            'ups': ['ups.com', 'ups.es'],
-            'banks': ['bancolombia.com', 'davivienda.com', 'bancodebogota.com', 'bbva.com']
-        };
-
-        // Extensiones de dominio sospechosas para diferentes tipos de ataques
-        const suspiciousTLDs = {
-            'high_risk': ['.tk', '.ml', '.ga', '.cf', '.top', '.click', '.download', '.stream', '.loan', '.win', '.bid'],
-            'medium_risk': ['.info', '.biz', '.name', '.mobi', '.asia', '.tel'],
-            'phishing_common': ['.net', '.org', '.info', '.biz'] // Cuando se usan para imitar .com
-        };
 
         function checkURL() {
             const urlInput = document.getElementById('urlInput');
@@ -700,264 +563,50 @@
             const domain = urlObj.hostname.replace('www.', '');
             const fullUrl = urlObj.href;
             
-            // 1. Verificar patrones maliciosos conocidos y avanzados
+            // Verificar patrones maliciosos
             const isMalicious = maliciousPatterns.some(pattern => 
-                fullUrl.includes(pattern) || domain.includes(pattern)
-            ) || advancedPhishingPatterns.some(pattern => 
                 fullUrl.includes(pattern) || domain.includes(pattern)
             );
             
             if (isMalicious) {
-                const threatType = detectThreatType(domain, fullUrl);
                 showResult('danger', 
-                    `🚨 <strong>AMENAZA ${threatType.type.toUpperCase()} DETECTADA</strong><br>
-                    ${threatType.description}<br>
-                    <small>⚠️ NO accedas a este enlace bajo ninguna circunstancia</small>`
+                    `🚨 <strong>PELIGRO DETECTADO</strong><br>
+                    Esta URL parece ser maliciosa. No hagas clic en este enlace.<br>
+                    <small>Patrones sospechosos detectados en: ${domain}</small>`
                 );
                 return;
             }
             
-            // 2. Verificar URLs acortadas
-            const isShortened = urlShorteners.some(shortener => domain.includes(shortener));
+            // Verificar URLs seguras conocidas
+            const isSafe = safeUrls.some(safe => domain.includes(safe));
             
-            if (isShortened) {
-                showResult('warning', 
-                    `⚠️ <strong>ENLACE ACORTADO DETECTADO</strong><br>
-                    Este enlace usa un servicio de acortamiento de URLs (${domain}).<br>
-                    <small>🔍 No puedes ver el destino real hasta hacer clic. Procede con extrema precaución.</small>`
-                );
-                return;
-            }
-            
-            // 3. Verificar si es un dominio legítimo conocido
-            const isLegitimate = legitimateDomains.some(legit => domain === legit || domain.endsWith('.' + legit));
-            
-            if (isLegitimate) {
+            if (isSafe) {
                 showResult('safe', 
-                    `✅ <strong>SITIO LEGÍTIMO VERIFICADO</strong><br>
-                    Esta URL pertenece a un dominio oficial reconocido.<br>
-                    <small>✓ Dominio verificado: ${domain}</small>`
+                    `✅ <strong>ENLACE SEGURO</strong><br>
+                    Esta URL parece ser segura y proviene de un dominio conocido.<br>
+                    <small>Dominio verificado: ${domain}</small>`
                 );
                 return;
             }
             
-            // 4. Análisis avanzado de phishing y amenazas emergentes
-            const advancedThreatAnalysis = detectAdvancedThreats(domain, fullUrl);
-            
-            if (advancedThreatAnalysis.isThreat) {
-                showResult('danger', 
-                    `🚨 <strong>${advancedThreatAnalysis.type.toUpperCase()} DETECTADO</strong><br>
-                    ${advancedThreatAnalysis.description}<br>
-                    <small>🛡️ ${advancedThreatAnalysis.recommendation}</small>`
-                );
-                return;
-            }
-            
-            // 5. Análisis heurístico general
+            // Análisis heurístico para URLs desconocidas
             const suspiciousIndicators = checkSuspiciousPatterns(url, domain);
             
-            if (suspiciousIndicators.length > 2) {
-                showResult('warning', 
-                    `⚠️ <strong>MÚLTIPLES INDICADORES SOSPECHOSOS</strong><br>
-                    Esta URL presenta varias características preocupantes:<br>
-                    <small>🔍 ${suspiciousIndicators.join(', ')}</small><br>
-                    <em>Recomendamos no acceder a este sitio.</em>`
-                );
-            } else if (suspiciousIndicators.length > 0) {
+            if (suspiciousIndicators.length > 0) {
                 showResult('warning', 
                     `⚠️ <strong>PRECAUCIÓN RECOMENDADA</strong><br>
-                    Se detectaron algunas características sospechosas:<br>
-                    <small>⚡ ${suspiciousIndicators.join(', ')}</small><br>
+                    Esta URL presenta algunas características sospechosas:<br>
+                    <small>${suspiciousIndicators.join(', ')}</small><br>
                     <em>Verifica la autenticidad antes de proceder.</em>`
                 );
             } else {
                 showResult('safe', 
-                    `✅ <strong>NO SE DETECTARON AMENAZAS OBVIAS</strong><br>
-                    La URL no presenta patrones maliciosos evidentes.<br>
-                    <small>📊 Dominio analizado: ${domain}</small><br>
-                    <em>Aun así, mantén precaución con sitios desconocidos.</em>`
+                    `✅ <strong>NO SE DETECTARON AMENAZAS</strong><br>
+                    La URL no presenta patrones maliciosos obvios, pero mantén precaución.<br>
+                    <small>Dominio analizado: ${domain}</small><br>
+                    <em>Recuerda siempre verificar la legitimidad del sitio.</em>`
                 );
             }
-        }
-        
-        function detectThreatType(domain, fullUrl) {
-            // Detectar tipo específico de amenaza
-            if (domain.includes('googledocs.login') || domain.includes('docs.google.com.verify')) {
-                return {
-                    type: 'PHISHING IA',
-                    description: 'Phishing sofisticado que imita servicios de Google con IA'
-                };
-            }
-            
-            if (domain.includes('banco-seguridad') || domain.includes('qr-verification')) {
-                return {
-                    type: 'QUISHING',
-                    description: 'Probable enlace malicioso distribuido via código QR'
-                };
-            }
-            
-            if (domain.includes('paquete-entrega') || domain.includes('envio-pendiente')) {
-                return {
-                    type: 'SMISHING',
-                    description: 'Estafa de mensajería (SMS/WhatsApp) simulando empresas de envío'
-                };
-            }
-            
-            if (domain.includes('virales-del-dia') || domain.includes('premio-ganado')) {
-                return {
-                    type: 'REDIRECCIÓN MALICIOSA',
-                    description: 'Sitio que redirige a páginas de estafa'
-                };
-            }
-            
-            return {
-                type: 'MALICIOSO',
-                description: 'Esta URL está identificada como amenaza en nuestra base de datos'
-            };
-        }
-        
-        function detectAdvancedThreats(domain, fullUrl) {
-            const analysis = {
-                isThreat: false,
-                type: '',
-                description: '',
-                recommendation: ''
-            };
-            
-            // 1. Detectar phishing con IA (dominios que imitan servicios legítimos)
-            for (const [service, legitimateDomains] of Object.entries(legitimateServices)) {
-                const servicePatterns = legitimateDomains.map(d => d.split('.')[0]).filter(Boolean);
-                
-                servicePatterns.forEach(pattern => {
-                    // Buscar patrones como "docs.google.com.verify-access.net"
-                    const suspiciousPattern = new RegExp(`${pattern}\\.(google|microsoft|amazon|paypal)\\.(com|es)\\.[a-z-]+\\.(com|net|org|info)`, 'i');
-                    if (suspiciousPattern.test(domain)) {
-                        analysis.isThreat = true;
-                        analysis.type = 'PHISHING CON IA';
-                        analysis.description = `Imita ${service} usando subdominios falsos para parecer legítimo`;
-                        analysis.recommendation = 'Este tipo de phishing es muy sofisticado. Siempre verifica la URL real del servicio oficial.';
-                        return analysis;
-                    }
-                });
-            }
-            
-            // 2. Detectar contexto sospechoso en la URL
-            const contextScore = suspiciousContextWords.reduce((score, word) => {
-                if (fullUrl.toLowerCase().includes(word)) score += 1;
-                return score;
-            }, 0);
-            
-            if (contextScore >= 2) {
-                analysis.isThreat = true;
-                analysis.type = 'CONTEXTO SOSPECHOSO';
-                analysis.description = `URL contiene múltiples palabras asociadas con urgencia y estafas`;
-                analysis.recommendation = 'Las URLs legítimas no suelen usar términos de urgencia excesiva.';
-                return analysis;
-            }
-            
-            // 3. Detectar redirecciones potenciales (sitios intermedios)
-            const redirectionPatterns = ['click', 'redirect', 'go', 'link', 'forward', 'jump'];
-            if (redirectionPatterns.some(pattern => domain.includes(pattern))) {
-                analysis.isThreat = true;
-                analysis.type = 'REDIRECCIÓN SOSPECHOSA';
-                analysis.description = 'Posible sitio intermediario que redirige a contenido malicioso';
-                analysis.recommendation = 'Los sitios de redirección pueden ocultar el destino real. Evita hacer clic.';
-                return analysis;
-            }
-            
-            // 4. Detectar malvertising (publicidad maliciosa)
-            const adPatterns = ['click.', 'ad.', 'ads.', 'anuncio', 'banner', 'popup', 'claim.', 'winner'];
-            if (adPatterns.some(pattern => domain.includes(pattern))) {
-                if (suspiciousContextWords.some(word => fullUrl.includes(word))) {
-                    analysis.isThreat = true;
-                    analysis.type = 'MALVERTISING';
-                    analysis.description = 'Publicidad maliciosa que podría llevar a sitios de estafa';
-                    analysis.recommendation = 'Desconfía de anuncios que prometen premios o ofertas demasiado buenas.';
-                    return analysis;
-                }
-            }
-            
-            // 5. Análisis de phishing tradicional mejorado
-            const traditionalPhishing = detectPhishingPatterns(domain, fullUrl);
-            if (traditionalPhishing.isPhishing) {
-                analysis.isThreat = true;
-                analysis.type = 'PHISHING TRADICIONAL';
-                analysis.description = traditionalPhishing.reasons.join('. ');
-                analysis.recommendation = 'Técnicas clásicas de phishing detectadas. Verifica siempre la autenticidad.';
-                return analysis;
-            }
-            
-            return analysis;
-        }
-        function detectPhishingPatterns(domain, fullUrl) {
-            const analysis = {
-                isPhishing: false,
-                reasons: []
-            };
-            
-            // Detectar homógrafos (caracteres similares)
-            const cleanDomain = normalizeHomoglyphs(domain);
-            if (cleanDomain !== domain) {
-                // Verificar si el dominio "limpio" coincide con un sitio legítimo
-                const matchesLegitimate = legitimateDomains.some(legit => 
-                    cleanDomain === legit || cleanDomain.includes(legit)
-                );
-                if (matchesLegitimate) {
-                    analysis.isPhishing = true;
-                    analysis.reasons.push('Caracteres sospechosos que imitan letras normales');
-                }
-            }
-            
-            // Detectar typosquatting
-            for (const [brand, typos] of Object.entries(typosquattingPatterns)) {
-                if (typos.some(typo => domain.includes(typo))) {
-                    analysis.isPhishing = true;
-                    analysis.reasons.push(`Imitación de ${brand} con error ortográfico intencional`);
-                    break;
-                }
-            }
-            
-            // Detectar subdominios maliciosos (ej: paypal.com.sitiomalicioso.com)
-            legitimateDomains.forEach(legit => {
-                const pattern = new RegExp(`${legit}\\.\\w+\\.(com|net|org|info|biz)`, 'i');
-                if (pattern.test(domain) && !domain.endsWith(legit)) {
-                    analysis.isPhishing = true;
-                    analysis.reasons.push(`Usa "${legit}" como subdominio para engañar`);
-                }
-            });
-            
-            // Detectar dominios que contienen marcas pero no son oficiales
-            legitimateDomains.forEach(legit => {
-                const brand = legit.split('.')[0];
-                if (domain.includes(brand) && !domain.endsWith(legit) && domain !== legit) {
-                    // Verificar patrones sospechosos como brand-security, brand-login, etc.
-                    const suspiciousPatterns = [
-                        `${brand}-security`,
-                        `${brand}-login`,
-                        `${brand}-verify`,
-                        `${brand}-update`,
-                        `${brand}-support`,
-                        `secure-${brand}`,
-                        `login-${brand}`,
-                        `verify-${brand}`
-                    ];
-                    
-                    if (suspiciousPatterns.some(pattern => domain.includes(pattern))) {
-                        analysis.isPhishing = true;
-                        analysis.reasons.push(`Imita a ${brand} con términos como "security" o "login"`);
-                    }
-                }
-            });
-            
-            return analysis;
-        }
-        
-        function normalizeHomoglyphs(text) {
-            let normalized = text;
-            for (const [homoglyph, normal] of Object.entries(homoglyphMap)) {
-                normalized = normalized.replace(new RegExp(homoglyph, 'g'), normal);
-            }
-            return normalized;
         }
         
         function checkSuspiciousPatterns(url, domain) {
@@ -969,94 +618,31 @@
             }
             
             // Verificar múltiples subdominios
-            const subdomains = domain.split('.');
-            if (subdomains.length > 4) {
-                indicators.push('estructura de subdominios compleja');
+            if (domain.split('.').length > 4) {
+                indicators.push('múltiples subdominios');
             }
             
             // Verificar números en lugares sospechosos
-            if (/\d/.test(domain.replace(/\.com|\.org|\.net|\.gov|\.co/, ''))) {
-                indicators.push('números inusuales en el dominio');
+            if (/\d/.test(domain.replace(/\.com|\.org|\.net|\.gov/, ''))) {
+                indicators.push('números en el dominio');
             }
             
-            // Verificar guiones múltiples (común en phishing)
+            // Verificar guiones múltiples
             if ((domain.match(/-/g) || []).length > 2) {
-                indicators.push('múltiples guiones sospechosos');
+                indicators.push('múltiples guiones');
             }
             
-            // Verificar TLD de alto riesgo
-            const highRiskTLD = suspiciousTLDs.high_risk.some(tld => domain.endsWith(tld));
-            if (highRiskTLD) {
-                indicators.push('extensión de dominio de muy alto riesgo');
+            // Verificar extensiones sospechosas
+            const suspiciousExtensions = ['.tk', '.ml', '.ga', '.cf'];
+            if (suspiciousExtensions.some(ext => domain.endsWith(ext))) {
+                indicators.push('extensión de dominio poco común');
             }
             
-            // Verificar longitud excesiva del dominio
-            if (domain.length > 35) {
-                indicators.push('dominio excesivamente largo');
-            }
-            
-            // Verificar estructura de subdominios compleja
-            const subdomains = domain.split('.');
-            if (subdomains.length > 4) {
-                indicators.push('estructura de subdominios sospechosamente compleja');
-            }
-            
-            // Verificar números en lugares inusuales
-            if (/\d/.test(domain.replace(/\.com|\.org|\.net|\.gov|\.co|\.es/, ''))) {
-                indicators.push('números inusuales en el dominio principal');
-            }
-            
-            // Verificar guiones múltiples (común en phishing)
-            if ((domain.match(/-/g) || []).length > 3) {
-                indicators.push('uso excesivo de guiones');
-            }
-            
-            // Verificar combinaciones sospechosas en la URL completa
-            const suspiciousCombinations = [
-                ['secure', 'login'],
-                ['verify', 'account'],
-                ['update', 'payment'],
-                ['confirm', 'identity'],
-                ['urgent', 'action'],
-                ['suspended', 'account']
-            ];
-            
-            suspiciousCombinations.forEach(([word1, word2]) => {
-                if (url.includes(word1) && url.includes(word2)) {
-                    indicators.push(`combinación sospechosa: "${word1}" + "${word2}"`);
-                }
-            });
-            
-            // Verificar patrones de URL sospechosos específicos
-            if (url.includes('docs.google.com') && !domain.includes('google.com')) {
-                indicators.push('imita Google Docs pero no es de Google');
-            }
-            
-            // Verificar puertos no estándar
-            try {
-                const urlObj = new URL(url);
-                if (urlObj.port && !['80', '443', '8080', ''].includes(urlObj.port)) {
-                    indicators.push(`puerto no estándar: ${urlObj.port}`);
-                }
-            } catch (e) {
-                // URL ya fue validada anteriormente
-            }
-            
-            // Verificar caracteres Unicode sospechosos
-            if (/[\u0080-\uFFFF]/.test(domain)) {
-                indicators.push('caracteres Unicode no latinos (posibles homógrafos)');
-            }
-            
-            // Verificar uso de IP en lugar de dominio
-            if (/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/.test(domain)) {
-                indicators.push('usa dirección IP en lugar de nombre de dominio');
-            }
-            
-            // Verificar palabras clave de urgencia en la URL
-            const urgencyWords = ['urgent', 'immediate', 'expir', 'suspend', 'block', 'limit'];
-            urgencyWords.forEach(word => {
-                if (url.toLowerCase().includes(word)) {
-                    indicators.push(`término de urgencia: "${word}"`);
+            // Verificar imitación de marcas conocidas
+            const brands = ['paypal', 'amazon', 'google', 'facebook', 'microsoft', 'apple', 'netflix'];
+            brands.forEach(brand => {
+                if (domain.includes(brand) && !domain.includes(brand + '.com')) {
+                    indicators.push(`posible imitación de ${brand}`);
                 }
             });
             
@@ -1117,28 +703,16 @@
         // Demo automática después de cargar la página
         window.addEventListener('load', function() {
             setTimeout(() => {
-                // Ejemplos rotativos de diferentes tipos de amenazas avanzadas
-                const advancedDemoUrls = [
-                    'https://docs.google.com.verify-access.net/login',  // Phishing con IA
-                    'https://www.paypaI.com/login',                     // Phishing tradicional
-                    'https://banco-seguridad.com/verificar-cuenta',     // Quishing
-                    'https://dhl.com.paquete-entrega-gratis.net/track', // Smishing
-                    'https://virales-del-dia.com/video/1',              // Redirección maliciosa
-                    'https://claim.tarjeta-regalo-amazon.com/winner',   // Malvertising
-                    'https://www.аррlе.com/support',                    // Homógrafos cirílicos
-                    'https://bit.ly/urgent-security-check',             // URL acortada sospechosa
-                    'https://netflix-security.org/suspend-alert'        // Imitación con urgencia
-                ];
-                
-                const randomUrl = advancedDemoUrls[Math.floor(Math.random() * advancedDemoUrls.length)];
-                typeURL(randomUrl, () => {
-                    setTimeout(checkURL, 1500);
+                // Ejemplo de URL sospechosa para la demo
+                typeURL('https://secure-bank-login.net/verify', () => {
+                    setTimeout(checkURL, 1000);
                 });
-            }, 4500);
+            }, 3000);
         });
     </script>
 </body>
 </html>
-
+                           
+               
 
 
