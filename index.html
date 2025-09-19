@@ -1,159 +1,565 @@
-<html lang="es">
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <title>Phishing Inspector</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Phishing Inspector — Potenciado</title>
+
+  <!-- Bootstrap CSS + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <!-- Vue + Chart.js -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body { -webkit-font-smoothing:antialiased; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .break-all { word-break: break-all; }
+    .small-muted { font-size:.9rem; opacity:.9; }
+    .pill { font-size:.75rem; padding:.18rem .6rem; border-radius:999px; border:1px solid rgba(0,0,0,.08); }
+    .link-action { min-width: 40px; }
+  </style>
 </head>
 <body>
-  <div id="app" class="bg-body-tertiary min-vh-100 d-flex align-items-center justify-content-center">
-    <div class="container py-5">
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
-
-          <div class="card shadow-lg border-0 rounded-4 p-4">
-            <div class="card-body">
-
-              <h1 class="text-center text-primary mb-4">
-                <i class="bi bi-shield-lock-fill"></i> Phishing Inspector
-              </h1>
-              <p class="text-muted text-center">Analiza correos y enlaces sospechosos, y aprende cómo protegerte.</p>
-
-              <ul class="nav nav-tabs mb-4" id="infoTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link active" id="phishing-tab" data-bs-toggle="tab" data-bs-target="#phishing" type="button" role="tab">Detector</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="social-tab" data-bs-toggle="tab" data-bs-target="#social" type="button" role="tab">Ingeniería Social</button>
-                </li>
-              </ul>
-
-              <div class="tab-content" id="infoTabsContent">
-
-                <!-- TAB: Detector -->
-                <div class="tab-pane fade show active" id="phishing" role="tabpanel">
-                  <form @submit.prevent="analizarTodo" class="mt-4">
-                    <div class="mb-3">
-                      <label class="form-label fw-semibold">Contenido del correo:</label>
-                      <textarea v-model="texto" class="form-control" rows="5" placeholder="Ej. Su cuenta ha sido bloqueada. Haga clic aquí para verificar..."></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                      <label class="form-label fw-semibold">Link sospechoso:</label>
-                      <input v-model="link" type="text" class="form-control" placeholder="Ej. http://bit.ly/abc123">
-                    </div>
-
-                    <button class="btn btn-primary w-100">Analizar</button>
-                  </form>
-
-                  <div v-if="resultado" class="mt-5">
-                    <div :class="['alert', esPeligroso ? 'alert-danger' : 'alert-success']">
-                      <h5 class="fw-bold">{{ resultado }}</h5>
-                      <p>Confianza en el diagnóstico: <strong>{{ confianza }}</strong></p>
-                    </div>
-
-                    <div v-if="detalles.length">
-                      <h6 class="fw-bold mb-2">🧾 Detalles del análisis:</h6>
-                      <ul class="list-group mb-3">
-                        <li v-for="item in detalles" :key="item" class="list-group-item">
-                          <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>{{ item }}
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div v-if="consejos.length">
-                      <h6 class="fw-bold mb-2">🛡️ Consejos de seguridad:</h6>
-                      <ul class="list-group">
-                        <li v-for="tip in consejos" :key="tip" class="list-group-item list-group-item-light">
-                          <i class="bi bi-shield-check me-2 text-success"></i>{{ tip }}
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div class="mt-4">
-                      <h6 class="fw-bold mb-2"><i class="bi bi-question-circle me-2 text-danger"></i>¿Hiciste clic en el enlace?</h6>
-                      <div class="d-flex gap-2">
-                        <button class="btn btn-outline-danger" @click="clickeado = true">Sí</button>
-                        <button class="btn btn-outline-secondary" @click="clickeado = false">No</button>
-                      </div>
-                    </div>
-
-                    <div v-if="clickeado === true" class="alert alert-warning mt-4">
-                      <h6 class="fw-bold mb-2"><i class="bi bi-shield-exclamation me-2"></i>Protocolo recomendado:</h6>
-                      <ul class="mb-0">
-                        <li>Cambia inmediatamente tus contraseñas, especialmente del correo y cuentas bancarias.</li>
-                        <li>Activa la verificación en dos pasos (2FA) en tus cuentas importantes.</li>
-                        <li>Escanea tu dispositivo con un antivirus actualizado.</li>
-                        <li>Evita ingresar datos personales en sitios que no estés 100% seguro.</li>
-                        <li>Contacta al soporte del servicio afectado (banco, correo, red social, etc.).</li>
-                        <li>Revisa tus movimientos bancarios o de servicios por si hay actividad sospechosa.</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- TAB: Ingeniería Social -->
-                <div class="tab-pane fade" id="social" role="tabpanel">
-                  <h4 class="text-primary mt-4"><i class="bi bi-people-fill me-2"></i>¿Qué es la Ingeniería Social?</h4>
-                  <p>
-                    La <strong>ingeniería social</strong> es una disciplina que, en el ámbito de la ciberseguridad, se refiere a un conjunto de técnicas de manipulación psicológica utilizadas por ciberdelincuentes para engañar a individuos y así obtener información confidencial, acceso a sistemas, o inducirlos a realizar acciones que les beneficien. A diferencia de los ataques técnicos que explotan vulnerabilidades en software o hardware, la ingeniería social se enfoca en el "eslabón más débil" de la cadena de seguridad: el ser humano.
-                  </p>
-
-                  <h5 class="mt-3"><i class="bi bi-gear-wide-connected me-2"></i>¿Cómo funciona?</h5>
-                  <p>
-                    La ingeniería social explota las características inherentes de la psicología humana, como la confianza, la curiosidad, el miedo, la urgencia o el deseo de ayudar. Los atacantes construyen escenarios creíbles y persuasivos para manipular a sus víctimas. Generalmente, un ataque de ingeniería social sigue una serie de pasos:
-
-
-                    
-                  <li> Recopilación de información: El atacante investiga a su objetivo. Esto puede incluir buscar información en redes sociales (LinkedIn, Facebook, etc.), sitios web de la empresa, noticias o incluso recortes de periódicos. El objetivo es conocer el funcionamiento interno de la organización, los nombres de empleados clave, sus roles, intereses y relaciones.</li>
-
-<li>Creación de confianza: Una vez recopilada la información, el atacante establece contacto con la víctima, a menudo haciéndose pasar por una persona o entidad de confianza (un colega, un proveedor, un técnico de soporte, una autoridad, etc.). El objetivo es generar una relación o situación que inspire credibilidad.</li>
-
-<li>Explotación: Cuando la confianza se ha establecido o la situación de urgencia/miedo es efectiva, el atacante manipula a la víctima para que divulgue la información deseada (contraseñas, datos bancarios, información personal), o realice una acción específica (hacer clic en un enlace malicioso, descargar un archivo, realizar una transferencia de dinero).</li>
-
-<li>Escape: Una vez logrado el objetivo, el atacante se desvincula, a menudo sin dejar rastro, o al menos dificultando su rastreo.</li>
-                  </p>
-
-                  <h5 class="mt-3"><i class="bi bi-bullseye me-2"></i>Objetivos principales</h5>
-                  <ul>
-                    <li>Obtener Información Confidencial: Este es, quizás, el objetivo más común y fundamental. Los atacantes buscan datos sensibles que pueden ser usados para otros ataques o para beneficio propio. .</li>
-                    <li>Acceso no Autorizado a Sistemas o Redes: Una vez que obtienen credenciales o explotan la confianza, los ingenieros sociales buscan ganar acceso a sistemas informáticos o redes. </li>
-                    <li>Inducir a la Víctima a Realizar Acciones Específicas: Los atacantes manipulan a las personas para que realicen acciones que normalmente no harían.</li>
-                    <li>Dañar la Reputación o Causar Disrupción: Aunque menos común como objetivo primario, la ingeniería social también puede ser usada para fines de sabotaje o para dañar la imagen de una persona o empresa.</li>
-                  </ul>
-
-                  <h5 class="mt-3"><i class="bi bi-layers-half me-2"></i>Técnicas comunes</h5>
-                  <ul>
-                    <li>Phishing y spear phishing.</li>
-                    <li>Pretexting: inventar una historia para justificar el acceso.</li>
-                    <li>Baiting: dejar dispositivos infectados para que sean usados.</li>
-                    <li>Tailgating: ingresar físicamente a lugares restringidos.</li>
-                  </ul>
-
-                  <h5 class="mt-3"><i class="bi bi-shield-lock me-2"></i>¿Cómo evitarlo?</h5>
-                  <ul>
-                    <li>No hacer clic en enlaces o descargar archivos de fuentes desconocidas</li>
-                    <li>No compartir datos personales por canales no verificados.</li>
-                    <li>Verificar siempre la fuente</li>
-                    <li>Utilizar contraseñas fuertes y autenticación de dos factores (2FA).</li>
-                  </ul>
-                </div>
-
-              </div> <!-- /.tab-content -->
-
-            </div>
-          </div>
-
-        </div>
+<div id="app" class="container py-4">
+  <!-- HEADER -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div class="d-flex align-items-center gap-3">
+      <i class="bi bi-shield-lock-fill fs-2 text-primary"></i>
+      <div>
+        <h1 class="h4 mb-0">Phishing Inspector</h1>
+        <div class="text-muted small-muted">Analizador heurístico avanzado de enlaces y correos.</div>
       </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <div class="form-check form-switch me-2">
+        <input class="form-check-input" type="checkbox" id="darkModeSwitch" v-model="darkMode" @change="toggleDarkMode">
+        <label class="form-check-label" for="darkModeSwitch">🌙 Modo oscuro</label>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" @click="limpiarFormulario"><i class="bi bi-eraser"></i></button>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.15/dist/vue.global.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="script.js"></script>
+  <!-- TABS -->
+  <ul class="nav nav-tabs mb-3" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#detector" type="button">Detector</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#info" type="button">Ingeniería Social</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#history" type="button">Historial</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#stats" type="button">Estadísticas</button></li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- DETECTOR -->
+    <div class="tab-pane fade show active" id="detector" role="tabpanel">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold">Contenido del correo/mensaje:</label>
+          <textarea v-model="texto" class="form-control" rows="5" placeholder="Pega aquí el texto sospechoso..."></textarea>
+        </div>
+
+        <div class="col-12 col-lg-8">
+          <label class="form-label fw-semibold">Enlace específico (opcional):</label>
+          <input v-model="link" class="form-control" placeholder="Ej. https://soporte-apple.com/actualizar o dominio" />
+        </div>
+
+        <div class="col-12 col-lg-4 d-grid">
+          <label class="form-label opacity-0">.</label>
+          <button class="btn btn-primary" @click="analizarTodo"><i class="bi bi-search me-2"></i>Analizar</button>
+        </div>
+
+        <!-- Enlaces detectados -->
+        <div class="col-12" v-if="enlacesDetectados.length">
+          <h6 class="fw-semibold"><i class="bi bi-link-45deg me-1"></i>Enlaces detectados</h6>
+          <div class="list-group">
+            <div class="list-group-item d-flex align-items-center justify-content-between" v-for="u in enlacesDetectados" :key="u">
+              <div class="mono break-all">{{ u }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary" @click="analizarURL(u)"><i class="bi bi-activity"></i></button>
+                <a class="btn btn-sm btn-outline-secondary" :href="añadirHttp(u)" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTADO -->
+        <div class="col-12" v-if="resultado">
+          <div :class="['alert', esPeligroso ? 'alert-danger' : (nivel==='Medio' ? 'alert-warning' : 'alert-success')]">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="fw-bold mb-1">{{ resultado }}</h5>
+                <div class="small text-muted">Confianza: <strong>{{ confianza }}</strong> — ({{ confianzaPorcentaje }}%)</div>
+              </div>
+              <span class="pill">{{ etiquetaVector }}</span>
+            </div>
+          </div>
+
+          <div v-if="detalles.length">
+            <h6 class="fw-semibold">🧾 Detalles del análisis</h6>
+            <ul class="list-group mb-3">
+              <li class="list-group-item" v-for="(d, i) in detalles" :key="i"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>{{ d }}</li>
+            </ul>
+          </div>
+
+          <div v-if="consejos.length">
+            <h6 class="fw-semibold">🛡️ Consejos</h6>
+            <ul class="list-group">
+              <li v-for="(c,i) in consejos" :key="i" class="list-group-item list-group-item-light"><i class="bi bi-shield-check me-2 text-success"></i>{{ c }}</li>
+            </ul>
+          </div>
+
+          <div class="mt-3">
+            <h6 class="fw-semibold">¿Hiciste clic en el enlace?</h6>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-danger" @click="clickeado=true">Sí</button>
+              <button class="btn btn-outline-secondary" @click="clickeado=false">No</button>
+            </div>
+          </div>
+
+          <div v-if="clickeado===true" class="alert alert-warning mt-3">
+            <h6 class="fw-semibold"><i class="bi bi-shield-exclamation me-2"></i>Protocolo recomendado</h6>
+            <ul class="mb-0">
+              <li>Cambia contraseñas críticas y activa 2FA.</li>
+              <li>Escanea tu equipo y revisa movimientos bancarios.</li>
+              <li>No introduzcas datos en sitios dudosos; contacta soporte oficial.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INGENIERÍA SOCIAL -->
+    <div class="tab-pane fade" id="info" role="tabpanel">
+      <h5 class="fw-semibold"><i class="bi bi-people-fill me-2"></i>¿Qué es la Ingeniería Social?</h5>
+      <p>Conjunto de técnicas para manipular psicológicamente y obtener información/acciones. Señales: urgencia, miedo, recompensa, enlaces acortados, dominios parecidos.</p>
+
+      <h6 class="mt-3 fw-semibold"><i class="bi bi-shield-lock me-2"></i>Prevención</h6>
+      <ul>
+        <li>Verifica dominio y certificado antes de iniciar sesión.</li>
+        <li>No abras enlaces acortados sin previsualizar.</li>
+        <li>Contraseñas fuertes, 2FA y actualizaciones al día.</li>
+      </ul>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="tab-pane fade" id="history" role="tabpanel">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="fw-semibold"><i class="bi bi-clock-history me-2"></i>Historial</h5>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-success" @click="exportarCSV">📤 CSV</button>
+          <button class="btn btn-sm btn-outline-info" @click="exportarJSON">📤 JSON</button>
+          <button class="btn btn-sm btn-outline-danger" @click="borrarHistorial"><i class="bi bi-trash"></i> Borrar historial</button>
+        </div>
+      </div>
+
+      <div class="list-group">
+        <div class="list-group-item" v-for="item in historial" :key="item.id">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="me-3 w-100">
+              <div class="fw-semibold">{{ item.fecha }} — <span :class="item.resultado.toLowerCase().includes('peligroso') ? 'text-danger' : (item.resultado.toLowerCase().includes('sospechoso') ? 'text-warning' : 'text-success')">{{ item.resultado }}</span></div>
+              <div class="small text-muted">Confianza: {{ item.confianza }}</div>
+              <div v-if="item.link" class="mono break-all small mt-1">URL: {{ item.link }}</div>
+              <div v-if="item.texto && item.texto.length>0" class="small text-truncate mt-1">{{ item.texto }}</div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary" @click="seleccionarHistorial(item)">Cargar</button>
+              <button class="btn btn-sm btn-outline-secondary" @click="eliminarDeHistorial(item.id)"><i class="bi bi-x-circle"></i></button>
+            </div>
+          </div>
+        </div>
+        <div v-if="!historial.length" class="p-3 text-muted">No hay análisis almacenados.</div>
+      </div>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="tab-pane fade" id="stats" role="tabpanel">
+      <h5 class="fw-semibold"><i class="bi bi-bar-chart-line me-2"></i>Estadísticas</h5>
+      <canvas id="statsChart" class="mt-3"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+  data() {
+    return {
+      texto: "",
+      link: "",
+      resultado: "",
+      confianza: "",
+      confianzaPorcentaje: 100,
+      detalles: [],
+      consejos: [],
+      clickeado: null,
+      historial: JSON.parse(localStorage.getItem("historialPhishing")) || [],
+      darkMode: false,
+      chart: null,
+      nivel: "Bajo",
+      etiquetaVector: "Heurístico"
+    };
+  },
+  computed: {
+    esPeligroso() {
+      return this.resultado.toLowerCase().includes("peligroso");
+    },
+    enlacesDetectados() {
+      return this.extraerLinks(this.texto);
+    }
+  },
+  mounted() {
+    this.renderChart();
+    // aplicar tema si ya estaba en localStorage (opcional)
+    if (localStorage.getItem("ph_inspector_theme")==="dark") {
+      this.darkMode = true;
+      this.toggleDarkMode();
+    }
+  },
+  methods: {
+    // UI
+    limpiarFormulario() {
+      this.texto = "";
+      this.link = "";
+      this.resultado = "";
+      this.confianza = "";
+      this.confianzaPorcentaje = 100;
+      this.detalles = [];
+      this.consejos = [];
+      this.clickeado = null;
+      this.nivel = "Bajo";
+      this.etiquetaVector = "Heurístico";
+    },
+    seleccionarHistorial(item) {
+      this.texto = item.texto || "";
+      this.link = item.link || "";
+      this.resultado = item.resultado;
+      this.confianza = item.confianza;
+      this.confianzaPorcentaje = parseInt((item.confianza.match(/\d+/)||[100])[0]);
+      this.clickeado = null;
+      this.nivel = this.resultado.toLowerCase().includes("peligroso") ? "Alto" : (this.resultado.toLowerCase().includes("sospechoso") ? "Medio" : "Bajo");
+      this.etiquetaVector = "Histórico";
+      this.detalles = ["Consulta previa cargada."];
+    },
+    eliminarDeHistorial(id) {
+      this.historial = this.historial.filter(x => x.id !== id);
+      localStorage.setItem("historialPhishing", JSON.stringify(this.historial));
+      this.renderChart();
+    },
+    borrarHistorial() {
+      if (!confirm("¿Deseas borrar todo el historial?")) return;
+      this.historial = [];
+      localStorage.setItem("historialPhishing", JSON.stringify(this.historial));
+      this.renderChart();
+    },
+    exportarCSV() {
+      const filas = [["Fecha","Resultado","Confianza","Link","Texto"]];
+      this.historial.forEach(it => filas.push([it.fecha, it.resultado, it.confianza, it.link||"", (it.texto||"").replace(/\s+/g," ").trim()]));
+      const csv = filas.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+      this.descargarArchivo(csv, "historial.csv", "text/csv");
+    },
+    exportarJSON() {
+      const json = JSON.stringify(this.historial, null, 2);
+      this.descargarArchivo(json, "historial.json", "application/json");
+    },
+    descargarArchivo(contenido, nombre, tipo) {
+      const blob = new Blob([contenido], { type: tipo });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = nombre;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    },
+    toggleDarkMode() {
+      document.documentElement.setAttribute("data-bs-theme", this.darkMode ? "dark" : "light");
+      localStorage.setItem("ph_inspector_theme", this.darkMode ? "dark" : "light");
+    },
+
+    // FLUJO PRINCIPAL
+    analizarTodo() {
+      const linksDetectados = this.enlacesDetectados;
+      const linkAAnalizar = (this.link || linksDetectados[0] || "").trim();
+      this.resultado = "";
+      this.detalles = [];
+      this.consejos = [];
+      this.clickeado = null;
+      this.etiquetaVector = "Heurístico";
+
+      // Reglas sobre texto: presión/urgencia/premios
+      let score = 0;
+      const patronesTexto = /verificar|urgente|bloquead[oa]|suspendid[oa]|inmediatamente|expirad[oa]|contraseña|cobro no autorizado|confirmar cuenta|premio|ganador|bono|reembolso|factura|soporte|verificación|mfa|otp|código|bloqueo|fraude|actividad inusual|paquete|aduana|dhl|fedex|impuesto|deuda|sorteo|gratis|promocion|oferta|regalo/i;
+      if (patronesTexto.test(this.texto)) {
+        score += 30;
+        this.detalles.push("Uso de lenguaje con presión/urgencia o señuelos (premios, facturas, soporte).");
+      }
+
+      // Si no hay enlace, calificamos sólo por contenido
+      if (!linkAAnalizar) {
+        this.calificar(score, null, "contenido");
+        this.persistirHistorial("", "");
+        return;
+      }
+
+      // Analizar la URL con la rutina completa
+      const { riesgo, razones, vector, confianzaPct, resumen, host } = this.analizarURL(linkAAnalizar);
+      score += riesgo;
+      this.detalles.push(...razones);
+      this.etiquetaVector = vector;
+
+      // Reglas adicionales explícitas solicitadas (sorteos / soportes falsos / emergentes)
+      const lower = (linkAAnalizar || "").toLowerCase();
+      // patrones de ejemplo que quieres captar:
+      const patronesEstafas = [
+        /sorteo|sorteos|sorteos-gratis|sorteosgratis|sorteos\-gratis\.net/,
+        /promo|promocion|promociones|premio-ahora/,
+        /soporte\-apple\.com|soporte-apple|soporte-apple\.net|support-apple|apple-support\-login/,
+        /soporte-|soporte_/,
+        /popup|emergente|popup\-alert|promo\-alert|ads-|adservice|adserver/
+      ];
+      for (const p of patronesEstafas) {
+        if (p.test(lower)) {
+          score += 45;
+          this.detalles.push("🔶 Patrón de estafa detectado: oferta/sorteo/soporte falso o anuncio emergente.");
+          break;
+        }
+      }
+
+      // Calificación final
+      this.calificar(score, confianzaPct, resumen);
+
+      // Generar consejos
+      this.generarConsejos(this.detalles);
+
+      // Guardado en historial (host útil para referencia)
+      this.persistirHistorial(linkAAnalizar, host);
+    },
+
+    // Análisis por URL (puedes llamar directamente)
+    analizarURL(entrada) {
+      const original = entrada || "";
+      const urlStr = /^([a-z]+:)?\/\//i.test(entrada) ? entrada : `http://${entrada}`;
+      let host = "";
+      let proto = "";
+      let path = "";
+      let query = "";
+      let port = "";
+      let full = urlStr;
+
+      let razones = [];
+      let score = 0;
+      let vector = "Heurístico";
+
+      try {
+        const u = new URL(urlStr);
+        host = (u.hostname || "").toLowerCase();
+        proto = (u.protocol || "").toLowerCase();
+        path = (u.pathname || "");
+        query = (u.search || "");
+        port = (u.port || "");
+        full = u.href;
+      } catch {
+        const m = (entrada.match(/^([a-z0-9\-\.]+\.[a-z]{2,})/i) || [,""])[1];
+        host = (m || "").toLowerCase();
+      }
+
+      // 1) Protocolo/esquema
+      if (/^http:/.test(proto)) { score += 25; razones.push("Enlace usa HTTP sin cifrado."); }
+      if (/^(javascript|data|file|blob|ftp|ws|wss):/i.test(proto)) { score += 50; razones.push(`Esquema no estándar o riesgoso: ${proto}`); vector = "URL Scheme"; }
+
+      // 2) Punycode/Unicode/homoglifos
+      if (/(^|\.)xn--/i.test(host)) { score += 50; razones.push("Dominio IDN (punycode): posible homógrafo."); }
+      if (/[^\x00-\x7F]/.test(host)) { score += 40; razones.push("Dominio con caracteres Unicode no ASCII."); }
+      if (this.mezclaScripts(host)) { score += 35; razones.push("Mezcla de alfabetos (latín/cirílico) en el dominio."); }
+
+      // 3) TLDs y patrones con abuso histórico
+      if (/\.(ru|cn|tk|ml|ga|cf|gq|xyz|top|click|rest|cam|monster|quest|zip|mov)(\/|$)/i.test(host)) { score += 20; razones.push("TLD con historial de abuso en phishing."); }
+
+      // 4) IPs, puertos, estructura
+      if (/^(\d{1,3}\.){3}\d{1,3}$/.test(host)) { score += 30; razones.push("Host es una IP en lugar de dominio."); }
+      if (port && !/^(80|443)$/.test(port)) { score += 10; razones.push(`Puerto inusual: ${port}`); }
+      const labels = host.split(".");
+      if (labels.length >= 5) { score += 15; razones.push("Estructura profunda (muchos subdominios)."); }
+      if (/([a-z0-9]+-){2,}/i.test(host)) { score += 15; razones.push("Demasiados guiones en el dominio."); }
+      if (/(.)\1{2,}/i.test(host)) { score += 10; razones.push("Repetición inusual de caracteres."); }
+      if (/[a-z]*[0-9]{2,}[a-z]*/i.test(host)) { score += 10; razones.push("Mezcla sospechosa letras/números."); }
+      if (/@/.test(full)) { score += 35; razones.push("URL contiene userinfo (@) — posible obfuscación."); vector = "Obfuscation"; }
+
+      // 5) Acortadores
+      if (/(^|\.)(bit\.ly|tinyurl\.com|t\.co|is\.gd|goo\.gl|ow\.ly|cutt\.ly|rebrand\.ly|buff\.ly|shorturl\.at)(\/|$)/i.test(host)) {
+        score += 40; razones.push("Enlace acortado detectado."); vector = "Redirect/Shortener";
+      }
+
+      // 6) Leet/homoglifos y marcas
+      const { normalizedHost, leetReplacements } = this.normalizeLeetHost(host);
+      if (leetReplacements > 0) { score += Math.min(leetReplacements*12, 60); razones.push(`Sustituciones leet/homógrafo (${leetReplacements}).`); }
+      const brands = ["google","facebook","instagram","whatsapp","youtube","twitter","x","microsoft","outlook","office","live","windows","apple","icloud","amazon","aws","netflix","paypal","binance","steam","adobe","spotify","tiktok","snapchat","yahoo","github","gitlab","dropbox","bankofamerica","chase","wellsfargo","santander","bbva","bancolombia","davivienda","nequi"];
+      const parts = host.split(".").flatMap(l => l.split("-")).filter(Boolean);
+      outer: for (const part of parts) {
+        const { normalized } = this.normalizeLeet(part.toLowerCase());
+        for (const b of brands) {
+          const d = this.levenshtein(normalized, b);
+          if (d === 0 && normalized === b && part !== b) { score += 45; razones.push(`Suplantación de marca: "${part}" ≈ "${b}".`); break outer; }
+          else if (d <= 2 && normalized.length >= 5) { score += 35; razones.push(`Dominio muy similar a marca "${b}" (${part} ≈ ${b}).`); break outer; }
+        }
+      }
+
+      // 7) Path / query indicators
+      const pathLower = (path||"").toLowerCase();
+      const queryLower = (query||"").toLowerCase();
+      const palabrasPath = /(login|signin|sign-in|verify|verification|update|secure|confirm|password|invoice|billing|payment|bank|wallet|gift|bonus|award|support|unlock|appeal|mfa|2fa|reset|recovery|parcel|dhl|fedex|ups|customs|tax|pay|refund)/i;
+      if (palabrasPath.test(pathLower)) { score += 25; razones.push("Ruta contiene palabras frecuentemente usadas para robo de credenciales/pagos."); }
+
+      const extensionesPeligrosas = /\.(exe|msi|scr|bat|cmd|ps1|vbs|js|jar|apk|ipa|dmg|pkg|iso|7z|zip|rar|gz|bz2|xz)(\?|$)/i;
+      if (extensionesPeligrosas.test(pathLower)) { score += 40; razones.push("Archivo ejecutable/comprimido detectado en la ruta."); vector = "Malicious File"; }
+
+      const parametrosSensibles = /(password|passwd|pass|pwd|otp|code|token|apikey|api_key|secret|ssn|dni|cedula|card|cc|cvv|pin|iban|swift|security_answer|recovery)/i;
+      if (parametrosSensibles.test(queryLower)) { score += 30; razones.push("Parámetros que indican captura de datos sensibles."); }
+
+      // 8) Ofuscaciones
+      if (/%00|%0d%0a|%2e%2e%2f|%2f%2e%2e/i.test(full)) { score += 25; razones.push("Secuencias de escape/Traversal detectadas."); }
+      if (decodeURIComponentSafe(full).match(/[^\x20-\x7E]/)) { score += 10; razones.push("Codificación/Unicode inusual tras decodificar URL."); }
+
+      // 9) Longitud / segmentos
+      if (full.length > 200) { score += 15; razones.push(`URL muy larga (${full.length} caracteres).`); }
+      if ((full.match(/\//g)||[]).length > 10) { score += 10; razones.push("Demasiados segmentos en la ruta."); }
+
+      // 10) Resultado
+      const maxScore = 180;
+      const riesgo = Math.min(score, maxScore);
+      const confianzaPct = Math.max(0, 100 - Math.round((riesgo / maxScore) * 100));
+      const resumen = "url";
+
+      return { riesgo, razones, vector, confianzaPct, resumen, host };
+    },
+
+    // CALIFICACIÓN FINAL
+    calificar(score, confianzaPct, resumen) {
+      const maxScore = 180;
+      const riesgo = Math.min(score, maxScore);
+      this.confianzaPorcentaje = confianzaPct || Math.max(0, 100 - Math.round((riesgo / maxScore) * 100));
+
+      if (riesgo >= 80) {
+        this.resultado = "⚠️ Posible correo o enlace peligroso";
+        this.confianza = `Baja (${this.confianzaPorcentaje}%)`;
+        this.nivel = "Alto";
+      } else if (riesgo >= 45) {
+        this.resultado = "⚠️ Podría ser sospechoso";
+        this.confianza = `Media (${this.confianzaPorcentaje}%)`;
+        this.nivel = "Medio";
+      } else {
+        this.resultado = "✅ No parece ser phishing";
+        this.confianza = `Alta (${this.confianzaPorcentaje}%)`;
+        this.nivel = "Bajo";
+      }
+    },
+
+    generarConsejos(razones) {
+      const R = razones.join(" ").toLowerCase();
+      this.consejos = [];
+      if (R.includes("http sin cifrado") || R.includes("http:")) this.consejos.push("Evita ingresar credenciales en sitios que no usen HTTPS.");
+      if (R.includes("acortado")) this.consejos.push("Previsualiza la URL acortada antes de abrirla.");
+      if (R.includes("ejecutable") || R.includes("comprimido")) this.consejos.push("No descargues ni ejecutes archivos de fuentes desconocidas.");
+      if (R.includes("marca")) this.consejos.push("Accede escribiendo manualmente la dirección oficial del servicio.");
+      if (R.includes("sorteo") || R.includes("premio") || R.includes("regalo")) this.consejos.push("Desconfía de sorteos/promociones no solicitadas.");
+      if (!this.consejos.length) this.consejos.push("Verifica dominio, evita ingresar credenciales y reporta el mensaje si procede.");
+    },
+
+    persistirHistorial(linkAAnalizar, host) {
+      const item = {
+        id: cryptoRandomId(),
+        texto: this.texto || "",
+        link: linkAAnalizar || "",
+        dominio: host || "",
+        resultado: this.resultado,
+        confianza: this.confianza,
+        fecha: new Date().toLocaleString()
+      };
+      this.historial.unshift(item);
+      if (this.historial.length > 200) this.historial.pop();
+      localStorage.setItem("historialPhishing", JSON.stringify(this.historial));
+      this.renderChart();
+    },
+
+    // UTILIDADES
+    extraerLinks(texto) {
+      const links = new Set();
+      const r = /((?:https?|ftp|ws|wss|blob|data|file|javascript):\/\/[^\s)'"<>]+)|\b((?:www\.)?[a-z0-9\-]+(?:\.[a-z0-9\-]+)+(?:\/[^\s]*)?)/ig;
+      (texto.match(r) || []).forEach(x => links.add(String(x).trim()));
+      return Array.from(links);
+    },
+    añadirHttp(u) { return /^([a-z]+:)?\/\//i.test(u) ? u : `http://${u}`; },
+    mezclaScripts(s) { const latin = /[A-Za-z]/.test(s); const cyr = /[\u0400-\u04FF]/.test(s); return latin && cyr; },
+
+    normalizeLeetHost(host) {
+      const parts = host.split(".");
+      let total = 0;
+      const normParts = parts.map(p => {
+        const { normalized, replacements } = this.applyLeetRules(p.toLowerCase());
+        total += replacements;
+        return normalized;
+      });
+      return { normalizedHost: normParts.join("."), leetReplacements: total };
+    },
+    normalizeLeet(s) { const { normalized, replacements } = this.applyLeetRules(s); return { normalized, replacements, changed: replacements>0 }; },
+    applyLeetRules(s) {
+      let replacements = 0;
+      const rules = [[/0/g,"o"],[/1/g,"l"],[/\|/g,"l"],[/!/g,"i"],[/3/g,"e"],[/4/g,"a"],[/@/g,"a"],[/5/g,"s"],[/\$/g,"s"],[/7/g,"t"],[/9/g,"g"],[/2/g,"z"],[/\+/g,"t"],[/vv/g,"w"],[/rn/g,"m"],[/cl/g,"d"]];
+      for (const [pat,rep] of rules) { const m = s.match(pat); if (m) replacements += m.length; s = s.replace(pat, rep); }
+      return { normalized: s, replacements };
+    },
+
+    levenshtein(a,b) {
+      if (a===b) return 0;
+      const n=a.length, m=b.length;
+      if (!n) return m; if (!m) return n;
+      const dp = Array.from({length:n+1},()=>new Array(m+1).fill(0));
+      for (let i=0;i<=n;i++) dp[i][0]=i;
+      for (let j=0;j<=m;j++) dp[0][j]=j;
+      for (let i=1;i<=n;i++) for (let j=1;j<=m;j++){ const cost = a[i-1]===b[j-1]?0:1; dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+cost); }
+      return dp[n][m];
+    },
+
+    // CHART
+    renderChart() {
+      const counts = { Alto:0, Medio:0, Bajo:0 };
+      this.historial.forEach(item => {
+        const r = (item.resultado||"").toLowerCase();
+        if (r.includes("peligroso") || r.includes("alto")) counts.Alto++;
+        else if (r.includes("sospechoso") || r.includes("medio")) counts.Medio++;
+        else counts.Bajo++;
+      });
+      const ctx = document.getElementById("statsChart");
+      if (!ctx) return;
+      if (this.chart) this.chart.destroy();
+      this.chart = new Chart(ctx, {
+        type: "bar",
+        data: { labels:["Seguro ✅","Medio ⚠️","Alto ⚠️"], datasets:[{ label:"Análisis", data:[counts.Bajo, counts.Medio, counts.Alto], backgroundColor:["#198754","#ffc107","#dc3545"] }] },
+        options: { responsive:true, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, precision:0 } } }
+      });
+    }
+  }
+}).mount("#app");
+
+// Helpers globales
+function cryptoRandomId() {
+  if (window.crypto?.getRandomValues) {
+    const a = new Uint32Array(2);
+    window.crypto.getRandomValues(a);
+    return Array.from(a).map(n => n.toString(16)).join("");
+  }
+  return Math.random().toString(16).slice(2)+Date.now().toString(16);
+}
+function decodeURIComponentSafe(s) {
+  try { return decodeURIComponent(s); } catch { return s; }
+}
+</script>
 </body>
 </html>
+
+
+
